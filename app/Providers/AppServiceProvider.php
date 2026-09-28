@@ -6,8 +6,10 @@ namespace App\Providers;
 
 use App\Models\Organization;
 use App\Models\Project;
+use App\Models\Task;
 use App\Policies\OrganizationPolicy;
 use App\Policies\ProjectPolicy;
+use App\Policies\TaskPolicy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\DevCommands;
 use Illuminate\Support\Facades\Gate;
@@ -30,6 +32,7 @@ final class AppServiceProvider extends ServiceProvider
     {
         Gate::policy(Organization::class, OrganizationPolicy::class);
         Gate::policy(Project::class, ProjectPolicy::class);
+        Gate::policy(Task::class, TaskPolicy::class);
 
         if ($this->app->isLocal()) {
             DevCommands::node('dev:ssr', 'ssr-build');

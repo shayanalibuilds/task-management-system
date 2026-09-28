@@ -18,14 +18,17 @@ use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Projects\DeleteColumnController;
 use App\Http\Controllers\Projects\DeleteProjectController;
+use App\Http\Controllers\Projects\DeleteTaskController;
 use App\Http\Controllers\Projects\ListProjectsController;
 use App\Http\Controllers\Projects\ProjectSettingsController;
 use App\Http\Controllers\Projects\ReorderColumnsController;
 use App\Http\Controllers\Projects\ShowProjectController;
 use App\Http\Controllers\Projects\StoreColumnController;
 use App\Http\Controllers\Projects\StoreProjectController;
+use App\Http\Controllers\Projects\StoreTaskController;
 use App\Http\Controllers\Projects\UpdateColumnController;
 use App\Http\Controllers\Projects\UpdateProjectController;
+use App\Http\Controllers\Projects\UpdateTaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -111,5 +114,15 @@ Route::middleware(['auth', 'org.member'])->prefix('{organization:slug}')->group(
         ->scopeBindings();
     Route::delete('projects/{project}/columns/{column}', DeleteColumnController::class)
         ->name('projects.columns.destroy')
+        ->scopeBindings();
+
+    Route::post('projects/{project}/tasks', StoreTaskController::class)
+        ->name('projects.tasks.store')
+        ->scopeBindings();
+    Route::patch('projects/{project}/tasks/{task}', UpdateTaskController::class)
+        ->name('projects.tasks.update')
+        ->scopeBindings();
+    Route::delete('projects/{project}/tasks/{task}', DeleteTaskController::class)
+        ->name('projects.tasks.destroy')
         ->scopeBindings();
 });
