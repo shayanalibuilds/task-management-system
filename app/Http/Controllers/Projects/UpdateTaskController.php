@@ -19,6 +19,8 @@ final class UpdateTaskController extends Controller
 
     public function __invoke(UpdateTaskRequest $request, Organization $organization, Project $project, Task $task): RedirectResponse
     {
+        /** @var User $user */
+        $user = $request->user();
         $validated = $request->validated();
 
         /** @var ProjectColumn $column */
@@ -28,6 +30,7 @@ final class UpdateTaskController extends Controller
             'project' => $project,
             'task' => $task,
             'column' => $column,
+            'user' => $user,
             ...$validated,
         ]);
 

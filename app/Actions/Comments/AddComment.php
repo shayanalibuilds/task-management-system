@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Comments;
 
+use App\Actions\Notifications\CreateNotification;
 use App\Models\Organization;
 use App\Models\Task;
 use App\Models\TaskComment;
@@ -12,7 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 final class AddComment
 {
-    public function __construct(private readonly NotifyMentionedUsers $notifyMentionedUsers) {}
+    public function __construct(
+        private readonly NotifyMentionedUsers $notifyMentionedUsers,
+        private readonly CreateNotification $notify,
+    ) {}
 
     /**
      * Store the comment and notify mentioned members who can see the task.
@@ -45,6 +49,10 @@ final class AddComment
                 'actor' => $author,
                 'mention_ids' => $mentionIds,
             ]);
+
+            if ($task->assignee_id !== null && ! in_array($task->assignee_id, $mentionIds, true)) {
+                $this->notify->comment($task, $author);
+            }
 
             return $comment;
         });

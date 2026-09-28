@@ -25,7 +25,7 @@ final class Membership extends Pivot
     /**
      * @var list<string>
      */
-    protected $fillable = ['organization_id', 'user_id', 'role'];
+    protected $fillable = ['organization_id', 'user_id', 'role', 'email_prefs'];
 
     /**
      * @return array<string, string>
@@ -34,6 +34,7 @@ final class Membership extends Pivot
     {
         return [
             'role' => OrganizationRole::class,
+            'email_prefs' => 'array',
         ];
     }
 
