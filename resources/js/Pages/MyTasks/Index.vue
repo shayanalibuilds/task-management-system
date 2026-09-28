@@ -15,7 +15,9 @@ const priorityStyles = {
     urgent: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400',
 };
 
-const hasOverdue = sections.value.some((section) => section.key === 'overdue' && section.tasks.length > 0);
+const hasOverdue = sections.value.some(
+    (section) => section.key === 'overdue' && section.tasks.length > 0,
+);
 </script>
 
 <template>
@@ -30,7 +32,10 @@ const hasOverdue = sections.value.some((section) => section.key === 'overdue' &&
                 </p>
             </div>
 
-            <div v-if="sections.every((section) => section.tasks.length === 0)" class="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400">
+            <div
+                v-if="sections.every((section) => section.tasks.length === 0)"
+                class="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
+            >
                 Nothing assigned to you. Enjoy the calm.
             </div>
 
@@ -39,18 +44,34 @@ const hasOverdue = sections.value.some((section) => section.key === 'overdue' &&
                 :key="section.key"
                 class="rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
             >
-                <header class="flex items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-                    <h2 class="text-sm font-semibold" :class="hasOverdue && section.key === 'overdue' ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-gray-100'">
+                <header
+                    class="flex items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-gray-800"
+                >
+                    <h2
+                        class="text-sm font-semibold"
+                        :class="
+                            hasOverdue && section.key === 'overdue'
+                                ? 'text-red-600 dark:text-red-400'
+                                : 'text-gray-900 dark:text-gray-100'
+                        "
+                    >
                         {{ section.label }}
                     </h2>
-                    <span class="text-xs text-gray-400 dark:text-gray-500">{{ section.tasks.length }}</span>
+                    <span class="text-xs text-gray-400 dark:text-gray-500">{{
+                        section.tasks.length
+                    }}</span>
                 </header>
 
                 <div class="divide-y divide-gray-100 dark:divide-gray-800">
                     <a
                         v-for="task in section.tasks"
                         :key="task.id"
-                        :href="route('projects.show', { organization: orgSlug, project: task.project_id })"
+                        :href="
+                            route('projects.show', {
+                                organization: orgSlug,
+                                project: task.project_id,
+                            })
+                        "
                         class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
                     >
                         <div class="min-w-0 flex-1">
@@ -58,7 +79,9 @@ const hasOverdue = sections.value.some((section) => section.key === 'overdue' &&
                                 {{ task.title }}
                             </p>
                             <p class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
-                                {{ task.project.name }} <span class="mx-1 text-gray-300 dark:text-gray-600">·</span> {{ task.column.name }}
+                                {{ task.project.name }}
+                                <span class="mx-1 text-gray-300 dark:text-gray-600">·</span>
+                                {{ task.column.name }}
                             </p>
                         </div>
                         <span
@@ -71,7 +94,11 @@ const hasOverdue = sections.value.some((section) => section.key === 'overdue' &&
                         <span
                             v-if="task.due_on"
                             class="shrink-0 text-xs"
-                            :class="section.key === 'overdue' ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400'"
+                            :class="
+                                section.key === 'overdue'
+                                    ? 'text-red-600 dark:text-red-400'
+                                    : 'text-gray-500 dark:text-gray-400'
+                            "
                         >
                             {{ task.due_on }}
                         </span>

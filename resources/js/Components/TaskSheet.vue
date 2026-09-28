@@ -46,9 +46,13 @@ watch(task, (value) => {
 const subtasks = computed(() => task.value?.subtasks ?? []);
 const labels = computed(() => task.value?.labels ?? []);
 const comments = ref([]);
-watch(task, (value) => {
-    comments.value = value ? [...(value.comments ?? [])] : [];
-}, { immediate: true });
+watch(
+    task,
+    (value) => {
+        comments.value = value ? [...(value.comments ?? [])] : [];
+    },
+    { immediate: true },
+);
 
 const newSubtask = ref('');
 const addingSubtask = ref(false);
@@ -56,32 +60,45 @@ const showLabelPicker = ref(false);
 const showNewLabel = ref(false);
 
 const newLabel = useForm({ name: '', color: '#4F46E5' });
-const palette = ['#4F46E5', '#0EA5E9', '#10B981', '#F59E0B', '#EF4444', '#EC4899', '#8B5CF6', '#64748B'];
+const palette = [
+    '#4F46E5',
+    '#0EA5E9',
+    '#10B981',
+    '#F59E0B',
+    '#EF4444',
+    '#EC4899',
+    '#8B5CF6',
+    '#64748B',
+];
 const commentBody = ref('');
 const postingComment = ref(false);
 
 function saveDetail() {
-    router.patch(route('projects.tasks.update', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        task: task.value.id,
-    }), {
-        column_id: detail.column_id,
-        title: detail.title,
-        description: detail.description,
-        priority: detail.priority,
-        assignee_id: detail.assignee_id === '' ? null : detail.assignee_id,
-        start_on: detail.start_on === '' ? null : detail.start_on,
-        due_on: detail.due_on === '' ? null : detail.due_on,
-    }, {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            task.value.title = detail.title;
-            task.value.description = detail.description;
-            task.value.priority = detail.priority;
+    router.patch(
+        route('projects.tasks.update', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            task: task.value.id,
+        }),
+        {
+            column_id: detail.column_id,
+            title: detail.title,
+            description: detail.description,
+            priority: detail.priority,
+            assignee_id: detail.assignee_id === '' ? null : detail.assignee_id,
+            start_on: detail.start_on === '' ? null : detail.start_on,
+            due_on: detail.due_on === '' ? null : detail.due_on,
         },
-    });
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                task.value.title = detail.title;
+                task.value.description = detail.description;
+                task.value.priority = detail.priority;
+            },
+        },
+    );
 }
 
 function addSubtask() {
@@ -91,95 +108,116 @@ function addSubtask() {
         return;
     }
 
-    router.post(route('projects.tasks.subtasks.store', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        task: task.value.id,
-    }), { title }, {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            subtasks.value.push({ id: Date.now(), title, completed: false });
-            newSubtask.value = '';
+    router.post(
+        route('projects.tasks.subtasks.store', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            task: task.value.id,
+        }),
+        { title },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                subtasks.value.push({ id: Date.now(), title, completed: false });
+                newSubtask.value = '';
+            },
         },
-    });
+    );
 }
 
 function toggleSubtask(subtask) {
     subtask.completed = !subtask.completed;
 
-    router.patch(route('projects.tasks.subtasks.update', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        task: task.value.id,
-        subtask: subtask.id,
-    }), {}, {
-        preserveScroll: true,
-        preserveState: true,
-        onError: () => {
-            subtask.completed = !subtask.completed;
+    router.patch(
+        route('projects.tasks.subtasks.update', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            task: task.value.id,
+            subtask: subtask.id,
+        }),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onError: () => {
+                subtask.completed = !subtask.completed;
+            },
         },
-    });
+    );
 }
 
 function removeSubtask(subtask) {
-    router.delete(route('projects.tasks.subtasks.destroy', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        task: task.value.id,
-        subtask: subtask.id,
-    }), {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            subtasks.value = subtasks.value.filter((item) => item.id !== subtask.id);
+    router.delete(
+        route('projects.tasks.subtasks.destroy', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            task: task.value.id,
+            subtask: subtask.id,
+        }),
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                subtasks.value = subtasks.value.filter((item) => item.id !== subtask.id);
+            },
         },
-    });
+    );
 }
 
 function attachLabel(labelId) {
-    router.post(route('projects.tasks.labels.attach', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        task: task.value.id,
-    }), { label_id: labelId }, {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            showLabelPicker.value = false;
+    router.post(
+        route('projects.tasks.labels.attach', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            task: task.value.id,
+        }),
+        { label_id: labelId },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                showLabelPicker.value = false;
+            },
         },
-    });
+    );
 }
 
 function createLabel() {
-    newLabel.post(route('projects.tasks.labels.create', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        task: task.value.id,
-    }), {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            showNewLabel.value = false;
-            newLabel.reset();
-            showLabelPicker.value = false;
+    newLabel.post(
+        route('projects.tasks.labels.create', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            task: task.value.id,
+        }),
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                showNewLabel.value = false;
+                newLabel.reset();
+                showLabelPicker.value = false;
+            },
         },
-    });
+    );
 }
 
 function detachLabel(label) {
-    router.delete(route('projects.tasks.labels.detach', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        task: task.value.id,
-        label: label.id,
-    }), {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            labels.value = labels.value.filter((item) => item.id !== label.id);
+    router.delete(
+        route('projects.tasks.labels.detach', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            task: task.value.id,
+            label: label.id,
+        }),
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                labels.value = labels.value.filter((item) => item.id !== label.id);
+            },
         },
-    });
+    );
 }
 
 function addMention(member) {
@@ -195,55 +233,73 @@ function postComment() {
 
     postingComment.value = true;
 
-    router.post(route('projects.tasks.comments.store', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        task: task.value.id,
-    }), { body }, {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            comments.value.push({
-                id: Date.now(),
-                body,
-                author: { name: page.props.auth.user.name },
-                created_at: new Date().toISOString(),
-            });
-            commentBody.value = '';
-            postingComment.value = false;
+    router.post(
+        route('projects.tasks.comments.store', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            task: task.value.id,
+        }),
+        { body },
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                comments.value.push({
+                    id: Date.now(),
+                    body,
+                    author: { name: page.props.auth.user.name },
+                    created_at: new Date().toISOString(),
+                });
+                commentBody.value = '';
+                postingComment.value = false;
+            },
+            onError: () => {
+                postingComment.value = false;
+            },
         },
-        onError: () => {
-            postingComment.value = false;
-        },
-    });
+    );
 }
 
 function close() {
-    router.get(route('projects.show', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        _query: { task: null },
-    }), {}, {
-        preserveScroll: true,
-        preserveState: true,
-    });
+    router.get(
+        route('projects.show', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            _query: { task: null },
+        }),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: true,
+        },
+    );
 
     emit('closed');
 }
 </script>
 
 <template>
-    <div v-if="task" class="fixed inset-0 z-[55]" role="dialog" aria-modal="true" aria-label="Task details">
+    <div
+        v-if="task"
+        class="fixed inset-0 z-[55]"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Task details"
+    >
         <div class="absolute inset-0 bg-gray-900/30" @click="close" />
 
-        <aside class="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-2xl dark:bg-gray-900 sm:inset-y-2 sm:right-2 sm:rounded-xl">
-            <header class="flex items-start justify-between gap-2 border-b border-gray-100 p-4 dark:border-gray-800">
+        <aside
+            class="absolute inset-y-0 right-0 flex w-full max-w-md flex-col bg-white shadow-2xl sm:inset-y-2 sm:right-2 sm:rounded-xl dark:bg-gray-900"
+        >
+            <header
+                class="flex items-start justify-between gap-2 border-b border-gray-100 p-4 dark:border-gray-800"
+            >
                 <input
                     v-model="detail.title"
                     type="text"
                     class="w-full rounded-md border-0 bg-transparent text-base font-semibold text-gray-900 hover:bg-gray-50 focus:bg-gray-50 focus:ring-0 dark:text-gray-100 dark:hover:bg-gray-800"
                     aria-label="Task title"
-                >
+                />
                 <button
                     type="button"
                     class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-200"
@@ -257,7 +313,11 @@ function close() {
             <div class="flex-1 space-y-5 overflow-y-auto p-4">
                 <section class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400" for="sheet-column">Column</label>
+                        <label
+                            class="block text-xs font-medium text-gray-500 dark:text-gray-400"
+                            for="sheet-column"
+                            >Column</label
+                        >
                         <select
                             id="sheet-column"
                             v-model="detail.column_id"
@@ -273,19 +333,31 @@ function close() {
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400" for="sheet-priority">Priority</label>
+                        <label
+                            class="block text-xs font-medium text-gray-500 dark:text-gray-400"
+                            for="sheet-priority"
+                            >Priority</label
+                        >
                         <select
                             id="sheet-priority"
                             v-model="detail.priority"
                             class="mt-1 w-full rounded-lg border-gray-300 text-sm capitalize dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                         >
-                            <option v-for="priority in priorities" :key="priority" :value="priority">
+                            <option
+                                v-for="priority in priorities"
+                                :key="priority"
+                                :value="priority"
+                            >
                                 {{ priority }}
                             </option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-medium text-gray-500 dark:text-gray-400" for="sheet-assignee">Assignee</label>
+                        <label
+                            class="block text-xs font-medium text-gray-500 dark:text-gray-400"
+                            for="sheet-assignee"
+                            >Assignee</label
+                        >
                         <select
                             id="sheet-assignee"
                             v-model="detail.assignee_id"
@@ -299,27 +371,38 @@ function close() {
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400" for="sheet-start">Start</label>
+                            <label
+                                class="block text-xs font-medium text-gray-500 dark:text-gray-400"
+                                for="sheet-start"
+                                >Start</label
+                            >
                             <input
                                 id="sheet-start"
                                 v-model="detail.start_on"
                                 type="date"
                                 class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
-                            >
+                            />
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400" for="sheet-due">Due</label>
+                            <label
+                                class="block text-xs font-medium text-gray-500 dark:text-gray-400"
+                                for="sheet-due"
+                                >Due</label
+                            >
                             <input
                                 id="sheet-due"
                                 v-model="detail.due_on"
                                 type="date"
                                 class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
-                            >
+                            />
                         </div>
                     </div>
                 </section>
 
-                <p v-if="detail.recentlySuccessful" class="text-xs text-emerald-600 dark:text-emerald-400">
+                <p
+                    v-if="detail.recentlySuccessful"
+                    class="text-xs text-emerald-600 dark:text-emerald-400"
+                >
                     Details saved.
                 </p>
                 <InputError :message="detail.errors.due_on" class="-mt-3" />
@@ -333,7 +416,11 @@ function close() {
                 </button>
 
                 <section>
-                    <h3 class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">Labels</h3>
+                    <h3
+                        class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400"
+                    >
+                        Labels
+                    </h3>
                     <div class="mt-2 flex flex-wrap items-center gap-1.5">
                         <span
                             v-for="label in labels"
@@ -360,10 +447,15 @@ function close() {
                             + Label
                         </button>
                     </div>
-                    <div v-if="showLabelPicker" class="mt-2 space-y-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+                    <div
+                        v-if="showLabelPicker"
+                        class="mt-2 space-y-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700"
+                    >
                         <div class="flex flex-wrap gap-1.5">
                             <button
-                                v-for="label in (page.props.org_labels ?? []).filter((l) => !labels.some((t) => t.id === l.id))"
+                                v-for="label in (page.props.org_labels ?? []).filter(
+                                    (l) => !labels.some((t) => t.id === l.id),
+                                )"
                                 :key="label.id"
                                 type="button"
                                 class="rounded-full px-2 py-0.5 text-xs font-medium"
@@ -386,14 +478,21 @@ function close() {
 
                 <section>
                     <div class="flex items-center justify-between">
-                        <h3 class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">Subtasks</h3>
+                        <h3
+                            class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400"
+                        >
+                            Subtasks
+                        </h3>
                         <span class="text-xs text-gray-400 dark:text-gray-500">
                             {{ subtasks.filter((s) => s.completed).length }}/{{ subtasks.length }}
                         </span>
                     </div>
 
                     <div class="mt-2 space-y-1">
-                        <p v-if="subtasks.length === 0" class="text-xs text-gray-400 dark:text-gray-500">
+                        <p
+                            v-if="subtasks.length === 0"
+                            class="text-xs text-gray-400 dark:text-gray-500"
+                        >
                             No subtasks yet.
                         </p>
                         <div
@@ -404,17 +503,31 @@ function close() {
                             <button
                                 type="button"
                                 class="inline-flex h-4 w-4 items-center justify-center rounded border"
-                                :class="subtask.completed
-                                    ? 'border-emerald-500 bg-emerald-500 text-white'
-                                    : 'border-gray-300 dark:border-gray-600'"
-                                :aria-label="subtask.completed ? 'Mark subtask incomplete' : 'Mark subtask complete'"
+                                :class="
+                                    subtask.completed
+                                        ? 'border-emerald-500 bg-emerald-500 text-white'
+                                        : 'border-gray-300 dark:border-gray-600'
+                                "
+                                :aria-label="
+                                    subtask.completed
+                                        ? 'Mark subtask incomplete'
+                                        : 'Mark subtask complete'
+                                "
                                 @click="toggleSubtask(subtask)"
                             >
-                                <AppIcon v-if="subtask.completed" name="check-square" class="h-3 w-3" />
+                                <AppIcon
+                                    v-if="subtask.completed"
+                                    name="check-square"
+                                    class="h-3 w-3"
+                                />
                             </button>
                             <span
                                 class="flex-1 text-sm"
-                                :class="subtask.completed ? 'text-gray-400 line-through dark:text-gray-500' : 'text-gray-800 dark:text-gray-200'"
+                                :class="
+                                    subtask.completed
+                                        ? 'text-gray-400 line-through dark:text-gray-500'
+                                        : 'text-gray-800 dark:text-gray-200'
+                                "
                             >
                                 {{ subtask.title }}
                             </span>
@@ -437,7 +550,7 @@ function close() {
                             placeholder="Add a subtask"
                             class="w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                             aria-label="New subtask"
-                        >
+                        />
                         <button
                             type="submit"
                             :disabled="addingSubtask"
@@ -449,17 +562,30 @@ function close() {
                 </section>
 
                 <section>
-                    <h3 class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400">Comments</h3>
+                    <h3
+                        class="text-xs font-semibold tracking-wide text-gray-500 uppercase dark:text-gray-400"
+                    >
+                        Comments
+                    </h3>
 
                     <div class="mt-2 space-y-3">
-                        <p v-if="comments.length === 0" class="text-xs text-gray-400 dark:text-gray-500">
+                        <p
+                            v-if="comments.length === 0"
+                            class="text-xs text-gray-400 dark:text-gray-500"
+                        >
                             No comments yet.
                         </p>
-                        <div v-for="comment in comments" :key="comment.id" class="rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+                        <div
+                            v-for="comment in comments"
+                            :key="comment.id"
+                            class="rounded-lg bg-gray-50 p-3 dark:bg-gray-800"
+                        >
                             <p class="text-xs font-medium text-gray-700 dark:text-gray-300">
                                 {{ comment.author.name }}
                             </p>
-                            <p class="mt-1 text-sm whitespace-pre-wrap text-gray-800 dark:text-gray-200">
+                            <p
+                                class="mt-1 text-sm whitespace-pre-wrap text-gray-800 dark:text-gray-200"
+                            >
                                 {{ comment.body }}
                             </p>
                         </div>
@@ -500,24 +626,34 @@ function close() {
     <Modal :open="showNewLabel" title="New label" @closed="showNewLabel = false">
         <form class="space-y-4" @submit.prevent="createLabel">
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300" for="label-name">Name</label>
+                <label
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    for="label-name"
+                    >Name</label
+                >
                 <input
                     id="label-name"
                     v-model="newLabel.name"
                     type="text"
                     class="mt-1 w-full rounded-lg border-gray-300 text-sm dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                     required
-                >
+                />
             </div>
             <div>
-                <span class="block text-sm font-medium text-gray-700 dark:text-gray-300">Color</span>
+                <span class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+                    >Color</span
+                >
                 <div class="mt-2 flex flex-wrap gap-2">
                     <button
                         v-for="color in palette"
                         :key="color"
                         type="button"
                         class="h-7 w-7 rounded-full ring-offset-2 dark:ring-offset-gray-900"
-                        :class="newLabel.color === color ? 'ring-2 ring-gray-900 dark:ring-gray-100' : ''"
+                        :class="
+                            newLabel.color === color
+                                ? 'ring-2 ring-gray-900 dark:ring-gray-100'
+                                : ''
+                        "
                         :style="{ backgroundColor: color }"
                         :aria-label="`Use color ${color}`"
                         @click="newLabel.color = color"
