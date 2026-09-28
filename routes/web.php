@@ -13,6 +13,8 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\InboxController;
+use App\Http\Controllers\MarkAllReadController;
 use App\Http\Controllers\Members\InviteMemberController;
 use App\Http\Controllers\Members\LeaveOrganizationController;
 use App\Http\Controllers\MyTasksController;
@@ -35,6 +37,7 @@ use App\Http\Controllers\Projects\TaskLabelController;
 use App\Http\Controllers\Projects\UpdateColumnController;
 use App\Http\Controllers\Projects\UpdateProjectController;
 use App\Http\Controllers\Projects\UpdateTaskController;
+use App\Http\Controllers\Settings\NotificationSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -88,6 +91,22 @@ Route::middleware('auth')->group(function (): void {
 
 Route::middleware(['auth', 'org.member'])->prefix('{organization:slug}')->group(function (): void {
     Route::get('/', DashboardController::class)->name('org.dashboard');
+
+    Route::get('inbox', InboxController::class)->name('inbox.index');
+    Route::post('inbox/mark-all-read', MarkAllReadController::class)->name('inbox.mark_all');
+
+    Route::get('settings/notifications', [NotificationSettingsController::class, 'edit'])
+        ->name('settings.notifications');
+    Route::patch('settings/notifications', [NotificationSettingsController::class, 'update'])
+        ->name('settings.notifications.update');
+
+    Route::get('inbox', InboxController::class)->name('inbox.index');
+    Route::post('inbox/mark-all-read', MarkAllReadController::class)->name('inbox.mark_all');
+
+    Route::get('settings/notifications', [NotificationSettingsController::class, 'edit'])
+        ->name('settings.notifications');
+    Route::patch('settings/notifications', [NotificationSettingsController::class, 'update'])
+        ->name('settings.notifications.update');
 
     Route::get('my-tasks', MyTasksController::class)->name('my-tasks.show');
     Route::get('calendar', CalendarController::class)->name('calendar.show');

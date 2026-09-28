@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Tasks;
 
+use App\Actions\Notifications\CreateNotification;
 use App\Enums\TaskPriority;
 use App\Models\Project;
 use App\Models\ProjectColumn;
@@ -14,15 +15,19 @@ use Illuminate\Support\Facades\DB;
 
 final class UpdateTask
 {
+    public function __construct(private readonly CreateNotification $notify) {}
+
     /**
      * Move or edit a task. The drop position is the fractional slot after
      * the neighbor the task lands on; without one it opens the column.
+     * Reassigning a task notifies the new assignee.
      *
-     * @param  array{project: Project, task: Task, column: ProjectColumn, title?: string, description?: ?string, priority?: TaskPriority, assignee?: ?User, start_on?: ?string, due_on?: ?string, position_after?: ?float}  $input
+     * @param  array{project: Project, task: Task, column: ProjectColumn, user?: ?User, title?: string, description?: ?string, priority?: TaskPriority, assignee?: ?User, start_on?: ?string, due_on?: ?string, position_after?: ?float}  $input
      */
     public function handle(array $input): Task
     {
         $task = $input['task'];
+        $previousAssigneeId = $task->assignee_id;
 
         $task = DB::transaction(function () use ($task, $input): Task {
             $position = $this->slotPosition($task, $input['column'], $input['position_after'] ?? null);
@@ -42,6 +47,13 @@ final class UpdateTask
         });
 
         DashboardCache::bust($input['project']->organization_id);
+
+        if (array_key_exists('assignee', $input)
+            && $input['assignee'] instanceof User
+            && $input['assignee']->getKey() !== $previousAssigneeId
+            && isset($input['user'])) {
+            $this->notify->assignment($task, $input['user'], $input['assignee']);
+        }
 
         return $task;
     }

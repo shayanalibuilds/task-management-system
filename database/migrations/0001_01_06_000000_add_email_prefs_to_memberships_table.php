@@ -12,15 +12,12 @@ return new class extends Migration
     {
         Schema::table('memberships', function (Blueprint $table): void {
             $table->json('email_prefs')->nullable()->after('role');
-
-            $table->index('user_id');
         });
     }
 
     public function down(): void
     {
         Schema::table('memberships', function (Blueprint $table): void {
-            $table->dropIndex(['user_id']);
             $table->dropColumn('email_prefs');
         });
     }

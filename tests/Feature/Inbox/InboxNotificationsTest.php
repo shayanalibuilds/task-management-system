@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 use App\Enums\OrganizationRole;
 use App\Models\Notification;
-use App\Models\Organization;
 use App\Models\Project;
 use App\Models\ProjectColumn;
 use App\Models\Task;
-use App\Models\User;
 use Illuminate\Support\Carbon;
 use Inertia\Testing\AssertableInertia;
 
@@ -162,15 +160,14 @@ test('email toggles update prefs without deleting inbox rows', function (): void
         ])
         ->assertRedirect();
 
-    $prefs = $assignee->roleIn($organization) !== null
-        ? $assignee->organizations()->whereKey($organization->id)->first()->pivot->email_prefs
-        : null;
+    $prefs = $organization->memberships()
+        ->where('user_id', $assignee->id)
+        ->firstOrFail()
+        ->email_prefs;
 
-    $decoded = json_decode((string) $prefs, true);
-
-    expect($decoded['mention'])->toBeFalse()
-        ->and($decoded['assignment'])->toBeFalse()
-        ->and($decoded['comment'])->toBeTrue()
-        ->and($decoded['due_reminder'])->toBeFalse()
+    expect(is_array($prefs) ? $prefs['mention'] : null)->toBeFalse()
+        ->and($prefs['assignment'])->toBeFalse()
+        ->and($prefs['comment'])->toBeTrue()
+        ->and($prefs['due_reminder'])->toBeFalse()
         ->and(Notification::query()->where('user_id', $assignee->id)->count())->toBe(1);
 });
