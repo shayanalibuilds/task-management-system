@@ -25,16 +25,20 @@ final class ShowProjectController extends Controller
         abort_unless($user->can('view', $project), 404);
 
         $columns = $project->columns()
-            ->with('tasks:id,project_id,column_id,title')
+            ->with('tasks:id,project_id,column_id,title,priority,assignee_id,due_on,position')
             ->get()
             ->map(fn ($column): array => [
                 'id' => $column->id,
                 'name' => $column->name,
                 'category' => $column->category->value,
                 'position' => (float) $column->position,
-                'tasks' => $column->tasks->map(fn ($task): array => [
+                'tasks' => $column->tasks->sortBy('position')->values()->map(fn ($task): array => [
                     'id' => $task->id,
                     'title' => $task->title,
+                    'priority' => $task->priority->value,
+                    'assignee_id' => $task->assignee_id,
+                    'due_on' => $task->due_on?->toDateString(),
+                    'position' => (float) $task->position,
                 ])->all(),
             ]);
 
