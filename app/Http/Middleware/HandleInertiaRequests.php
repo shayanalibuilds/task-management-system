@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -44,10 +45,27 @@ final class HandleInertiaRequests extends Middleware
                     'email_verified_at',
                 ),
             ],
+            'organization' => fn (): ?array => $this->currentOrganization($request),
             'status' => fn (): ?string => $request->session()->get('status'),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
             ],
         ];
+    }
+
+    /**
+     * The organization addressed by the current route, when on an org page.
+     *
+     * @return array{id: int, name: string, slug: string}|null
+     */
+    private function currentOrganization(Request $request): ?array
+    {
+        $organization = $request->route('organization');
+
+        if (! $organization instanceof Organization) {
+            return null;
+        }
+
+        return $organization->only('id', 'name', 'slug');
     }
 }
