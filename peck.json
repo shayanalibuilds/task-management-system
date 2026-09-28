@@ -13,9 +13,6 @@
             "assignees",
             "prefs"
         ],
-        "paths": [
-            "storage/inertia-devtools",
-            "./docs/agents/vue-ssr.md"
-        ]
+        "paths": ["storage/inertia-devtools", "./docs/agents/vue-ssr.md"]
     }
 }

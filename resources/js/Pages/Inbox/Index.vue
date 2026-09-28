@@ -10,10 +10,22 @@ const notifications = computed(() => page.props.notifications ?? []);
 const unreadCount = computed(() => page.props.unread_count ?? 0);
 
 const typeMeta = {
-    mention: { label: 'Mention', classes: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300' },
-    assignment: { label: 'Assignment', classes: 'bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-400' },
-    comment: { label: 'Comment', classes: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400' },
-    due_reminder: { label: 'Reminder', classes: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400' },
+    mention: {
+        label: 'Mention',
+        classes: 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300',
+    },
+    assignment: {
+        label: 'Assignment',
+        classes: 'bg-sky-50 text-sky-700 dark:bg-sky-950 dark:text-sky-400',
+    },
+    comment: {
+        label: 'Comment',
+        classes: 'bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-400',
+    },
+    due_reminder: {
+        label: 'Reminder',
+        classes: 'bg-red-50 text-red-700 dark:bg-red-950 dark:text-red-400',
+    },
 };
 
 const clearing = ref(false);
@@ -21,13 +33,17 @@ const clearing = ref(false);
 function markAllRead() {
     clearing.value = true;
 
-    router.post(route('inbox.mark_all', { organization: orgSlug.value }), {}, {
-        preserveScroll: true,
-        preserveState: true,
-        onFinish: () => {
-            clearing.value = false;
+    router.post(
+        route('inbox.mark_all', { organization: orgSlug.value }),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onFinish: () => {
+                clearing.value = false;
+            },
         },
-    });
+    );
 }
 
 function taskHref(notification) {
@@ -48,11 +64,14 @@ function taskHref(notification) {
         <div class="mx-auto max-w-3xl space-y-6">
             <div class="flex items-center justify-between">
                 <div>
-                    <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+                    <h1
+                        class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
+                    >
                         Inbox
                     </h1>
                     <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                        {{ unreadCount }} unread {{ unreadCount === 1 ? 'notification' : 'notifications' }}.
+                        {{ unreadCount }} unread
+                        {{ unreadCount === 1 ? 'notification' : 'notifications' }}.
                     </p>
                 </div>
                 <button
@@ -91,7 +110,14 @@ function taskHref(notification) {
                         aria-hidden="true"
                     />
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm" :class="notification.read_at ? 'text-gray-600 dark:text-gray-400' : 'font-medium text-gray-900 dark:text-gray-100'">
+                        <p
+                            class="text-sm"
+                            :class="
+                                notification.read_at
+                                    ? 'text-gray-600 dark:text-gray-400'
+                                    : 'font-medium text-gray-900 dark:text-gray-100'
+                            "
+                        >
                             {{ notification.message }}
                         </p>
                         <p class="mt-0.5 text-xs text-gray-400 dark:text-gray-500">
