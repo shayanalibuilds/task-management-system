@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 use App\Enums\OrganizationRole;
 use App\Models\Label;
-use App\Models\Notification;
 use App\Models\Organization;
-use App\Models\Project;
 use App\Models\OrganizationInvite;
+use App\Models\Project;
+use App\Models\ProjectColumn;
 use App\Models\Task;
 use Inertia\Testing\AssertableInertia;
 
@@ -89,7 +89,7 @@ test('only owners can delete the organization', function (): void {
     $admin = attach_member($organization, OrganizationRole::Admin);
 
     $project = Project::factory()->for($organization)->create();
-    $column = \App\Models\ProjectColumn::factory()->for($project)->create();
+    $column = ProjectColumn::factory()->for($project)->create();
     Task::factory()->for($project)->create(['column_id' => $column->id]);
 
     $this->actingAs($admin)
