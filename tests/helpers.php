@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Enums\OrganizationRole;
 use App\Models\Organization;
 use App\Models\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Testing\TestResponse;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,5 +46,27 @@ if (! function_exists('attach_member')) {
         $organization->users()->attach($user, ['role' => $role->value]);
 
         return $user;
+    }
+}
+
+if (! function_exists('inertia_props')) {
+    /**
+     * Read the full props payload from an Inertia response for
+     * assertions that need to iterate nested structures.
+     *
+     * @return array<string, mixed>
+     */
+    function inertia_props(TestResponse $response): array
+    {
+        /** @var View $view */
+        $view = $response->getOriginalContent();
+
+        $page = $view->getData()['page'];
+
+        if (is_array($page)) {
+            return $page['props'] ?? [];
+        }
+
+        return $page->toArray()['props'];
     }
 }

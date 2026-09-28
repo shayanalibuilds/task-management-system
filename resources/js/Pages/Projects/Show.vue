@@ -13,6 +13,15 @@ const page = usePage();
 const orgSlug = computed(() => page.props.organization.slug);
 const project = computed(() => page.props.project);
 const canManage = computed(() => page.props.can_manage ?? false);
+const view = computed(() => page.props.view ?? 'board');
+
+function hrefFor(nextView) {
+    return route('projects.show', {
+        organization: orgSlug.value,
+        project: project.value.id,
+        _query: { view: nextView },
+    });
+}
 
 const columns = ref([...(page.props.columns ?? [])]);
 const dragging = ref(null);
@@ -152,6 +161,28 @@ function dropAfterList(column) {
                 </div>
 
                 <div class="flex items-center gap-2">
+                    <div class="mr-2 flex items-center rounded-lg border border-gray-200 p-0.5 dark:border-gray-700">
+                        <Link
+                            :href="hrefFor('board')"
+                            class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium"
+                            :class="view === 'board'
+                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
+                                : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'"
+                        >
+                            <AppIcon name="dashboard" class="h-3.5 w-3.5" />
+                            Board
+                        </Link>
+                        <Link
+                            :href="hrefFor('list')"
+                            class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium"
+                            :class="view === 'list'
+                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
+                                : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'"
+                        >
+                            <AppIcon name="menu" class="h-3.5 w-3.5" />
+                            List
+                        </Link>
+                    </div>
                     <Link
                         v-if="canManage"
                         :href="route('projects.settings', { organization: orgSlug, project: project.id })"
@@ -163,7 +194,7 @@ function dropAfterList(column) {
                 </div>
             </div>
 
-            <div class="flex gap-4 overflow-x-auto pb-4">
+            <div v-if="view === 'board'" class="flex gap-4 overflow-x-auto pb-4">
                 <section
                     v-for="column in columns"
                     :key="column.id"
@@ -242,6 +273,52 @@ function dropAfterList(column) {
                 >
                     <AppIcon name="plus" />
                 </button>
+            </div>
+
+            <div v-else class="space-y-6">
+                <p
+                    v-if="columns.every((column) => column.tasks.length === 0)"
+                    class="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400"
+                >
+                    No tasks yet. Create one from the board or the + button.
+                </p>
+
+                <section
+                    v-for="column in columns.filter((c) => c.tasks.length > 0)"
+                    :key="column.id"
+                    class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
+                >
+                    <header class="flex items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-gray-800">
+                        <span class="h-2 w-2 rounded-full" :class="categoryStyles[column.category]" />
+                        <h2 class="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            {{ column.name }}
+                        </h2>
+                        <span class="ml-auto text-xs text-gray-400 dark:text-gray-500">
+                            {{ column.tasks.length }}
+                        </span>
+                    </header>
+                    <div class="divide-y divide-gray-100 dark:divide-gray-800">
+                        <div
+                            v-for="task in column.tasks"
+                            :key="task.id"
+                            class="flex items-center gap-3 px-4 py-3 text-sm"
+                        >
+                            <p class="min-w-0 flex-1 truncate font-medium text-gray-900 dark:text-gray-100">
+                                {{ task.title }}
+                            </p>
+                            <span
+                                v-if="task.priority !== 'none'"
+                                class="rounded px-1.5 py-0.5 text-[11px] font-medium capitalize"
+                                :class="priorityStyles[task.priority]"
+                            >
+                                {{ task.priority }}
+                            </span>
+                            <span v-if="task.due_on" class="shrink-0 text-xs text-gray-500 dark:text-gray-400">
+                                {{ task.due_on }}
+                            </span>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
 

@@ -10,10 +10,12 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\CalendarController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Members\InviteMemberController;
 use App\Http\Controllers\Members\LeaveOrganizationController;
+use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Projects\DeleteColumnController;
@@ -82,6 +84,9 @@ Route::middleware('auth')->group(function (): void {
 
 Route::middleware(['auth', 'org.member'])->prefix('{organization:slug}')->group(function (): void {
     Route::get('/', DashboardController::class)->name('org.dashboard');
+
+    Route::get('my-tasks', MyTasksController::class)->name('my-tasks.show');
+    Route::get('calendar', CalendarController::class)->name('calendar.show');
 
     Route::post('members/invites', InviteMemberController::class)
         ->name('members.invites.store');
