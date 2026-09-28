@@ -43,7 +43,7 @@ const organizations = computed(() => page.props.auth?.organizations ?? []);
         </template>
 
         <template #content>
-            <p class="px-3 pb-1 pt-2 text-xs font-medium text-gray-500 dark:text-gray-400">
+            <p class="px-3 pt-2 pb-1 text-xs font-medium text-gray-500 dark:text-gray-400">
                 Workspaces
             </p>
             <Link
