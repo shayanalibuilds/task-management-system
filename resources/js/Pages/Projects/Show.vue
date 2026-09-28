@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import AppIcon from '@/Components/AppIcon.vue';
+import TaskSheet from '@/Components/TaskSheet.vue';
 import Modal from '@/Components/Modal.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -14,6 +15,8 @@ const orgSlug = computed(() => page.props.organization.slug);
 const project = computed(() => page.props.project);
 const canManage = computed(() => page.props.can_manage ?? false);
 const view = computed(() => page.props.view ?? 'board');
+const sheetTask = computed(() => page.props.sheet?.task ?? null);
+const orgLabels = computed(() => page.props.org_labels ?? []);
 
 function hrefFor(nextView) {
     return route('projects.show', {
@@ -84,32 +87,39 @@ function dropOnColumn(column, index) {
         target.tasks.splice(insertAt, 0, moved);
     }
 
-    router.patch(route('projects.tasks.update', {
-        organization: orgSlug.value,
-        project: project.value.id,
-        task: moved.id,
-    }), {
-        column_id: target.id,
-        title: moved.title,
-        position_after: neighborPosition,
-    }, {
-        preserveScroll: true,
-        preserveState: true,
-        onError: () => {
-            syncColumns();
+    router.patch(
+        route('projects.tasks.update', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            task: moved.id,
+        }),
+        {
+            column_id: target.id,
+            title: moved.title,
+            position_after: neighborPosition,
         },
-    });
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onError: () => {
+                syncColumns();
+            },
+        },
+    );
 }
 
 function submitColumn() {
-    columnForm.post(route('projects.columns.store', { organization: orgSlug.value, project: project.value.id }), {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            showingAddColumn.value = false;
-            columnForm.reset();
+    columnForm.post(
+        route('projects.columns.store', { organization: orgSlug.value, project: project.value.id }),
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                showingAddColumn.value = false;
+                columnForm.reset();
+            },
         },
-    });
+    );
 }
 
 function openAddTask(column) {
@@ -119,14 +129,17 @@ function openAddTask(column) {
 }
 
 function submitTask() {
-    taskForm.post(route('projects.tasks.store', { organization: orgSlug.value, project: project.value.id }), {
-        preserveScroll: true,
-        preserveState: true,
-        onSuccess: () => {
-            taskForm.title = '';
-            showingAddTask.value = null;
+    taskForm.post(
+        route('projects.tasks.store', { organization: orgSlug.value, project: project.value.id }),
+        {
+            preserveScroll: true,
+            preserveState: true,
+            onSuccess: () => {
+                taskForm.title = '';
+                showingAddTask.value = null;
+            },
         },
-    });
+    );
 }
 
 function dropBefore(column, index) {
@@ -136,10 +149,34 @@ function dropBefore(column, index) {
 function dropAfterList(column) {
     dropOnColumn(column, undefined);
 }
+
+function openTask(task) {
+    if (dragging.value !== null) {
+        return;
+    }
+
+    router.get(
+        route('projects.show', {
+            organization: orgSlug.value,
+            project: project.value.id,
+            _query: { task: task.id },
+        }),
+        {},
+        {
+            preserveScroll: true,
+            preserveState: true,
+        },
+    );
+}
 </script>
 
 <template>
-    <AppLayout :breadcrumbs="[{ label: 'Projects', href: route('projects.index', { organization: orgSlug }) }, { label: project.name }]">
+    <AppLayout
+        :breadcrumbs="[
+            { label: 'Projects', href: route('projects.index', { organization: orgSlug }) },
+            { label: project.name },
+        ]"
+    >
         <div class="mx-auto max-w-6xl space-y-6">
             <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -149,7 +186,9 @@ function dropAfterList(column) {
                     >
                         <AppIcon :name="project.icon" />
                     </span>
-                    <h1 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
+                    <h1
+                        class="text-xl font-semibold tracking-tight text-gray-900 dark:text-gray-100"
+                    >
                         {{ project.name }}
                     </h1>
                     <span
@@ -161,13 +200,17 @@ function dropAfterList(column) {
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <div class="mr-2 flex items-center rounded-lg border border-gray-200 p-0.5 dark:border-gray-700">
+                    <div
+                        class="mr-2 flex items-center rounded-lg border border-gray-200 p-0.5 dark:border-gray-700"
+                    >
                         <Link
                             :href="hrefFor('board')"
                             class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium"
-                            :class="view === 'board'
-                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
-                                : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'"
+                            :class="
+                                view === 'board'
+                                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
+                                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
+                            "
                         >
                             <AppIcon name="dashboard" class="h-3.5 w-3.5" />
                             Board
@@ -175,9 +218,11 @@ function dropAfterList(column) {
                         <Link
                             :href="hrefFor('list')"
                             class="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium"
-                            :class="view === 'list'
-                                ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
-                                : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'"
+                            :class="
+                                view === 'list'
+                                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300'
+                                    : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200'
+                            "
                         >
                             <AppIcon name="menu" class="h-3.5 w-3.5" />
                             List
@@ -185,7 +230,12 @@ function dropAfterList(column) {
                     </div>
                     <Link
                         v-if="canManage"
-                        :href="route('projects.settings', { organization: orgSlug, project: project.id })"
+                        :href="
+                            route('projects.settings', {
+                                organization: orgSlug,
+                                project: project.id,
+                            })
+                        "
                         class="inline-flex h-8 w-8 items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-100"
                         aria-label="Project settings"
                     >
@@ -203,8 +253,13 @@ function dropAfterList(column) {
                     @dragover.prevent
                     @drop.prevent="dropAfterList(column)"
                 >
-                    <header class="flex items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-                        <span class="h-2 w-2 rounded-full" :class="categoryStyles[column.category]" />
+                    <header
+                        class="flex items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-gray-800"
+                    >
+                        <span
+                            class="h-2 w-2 rounded-full"
+                            :class="categoryStyles[column.category]"
+                        />
                         <h2 class="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {{ column.name }}
                         </h2>
@@ -233,6 +288,7 @@ function dropAfterList(column) {
                                 class="cursor-grab rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-800 shadow-sm active:cursor-grabbing dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                                 @dragstart="startDrag(task, column)"
                                 @dragend="dragging = null"
+                                @click="openTask(task)"
                             >
                                 <p class="font-medium">{{ task.title }}</p>
                                 <div class="mt-2 flex items-center gap-2">
@@ -251,6 +307,8 @@ function dropAfterList(column) {
                                     </span>
                                 </div>
                             </div>
+
+                            <TaskSheet :sheet-task="sheetTask" :org-labels="orgLabels" />
                         </template>
                     </div>
 
@@ -288,8 +346,13 @@ function dropAfterList(column) {
                     :key="column.id"
                     class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
                 >
-                    <header class="flex items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-                        <span class="h-2 w-2 rounded-full" :class="categoryStyles[column.category]" />
+                    <header
+                        class="flex items-center gap-2 border-b border-gray-100 px-4 py-3 dark:border-gray-800"
+                    >
+                        <span
+                            class="h-2 w-2 rounded-full"
+                            :class="categoryStyles[column.category]"
+                        />
                         <h2 class="text-sm font-medium text-gray-900 dark:text-gray-100">
                             {{ column.name }}
                         </h2>
@@ -303,7 +366,9 @@ function dropAfterList(column) {
                             :key="task.id"
                             class="flex items-center gap-3 px-4 py-3 text-sm"
                         >
-                            <p class="min-w-0 flex-1 truncate font-medium text-gray-900 dark:text-gray-100">
+                            <p
+                                class="min-w-0 flex-1 truncate font-medium text-gray-900 dark:text-gray-100"
+                            >
                                 {{ task.title }}
                             </p>
                             <span
@@ -313,7 +378,10 @@ function dropAfterList(column) {
                             >
                                 {{ task.priority }}
                             </span>
-                            <span v-if="task.due_on" class="shrink-0 text-xs text-gray-500 dark:text-gray-400">
+                            <span
+                                v-if="task.due_on"
+                                class="shrink-0 text-xs text-gray-500 dark:text-gray-400"
+                            >
                                 {{ task.due_on }}
                             </span>
                         </div>
@@ -326,7 +394,13 @@ function dropAfterList(column) {
             <form class="space-y-4" @submit.prevent="submitColumn">
                 <div>
                     <InputLabel for="board-column-name" value="Name" />
-                    <TextInput id="board-column-name" v-model="columnForm.name" type="text" class="mt-1 w-full" required />
+                    <TextInput
+                        id="board-column-name"
+                        v-model="columnForm.name"
+                        type="text"
+                        class="mt-1 w-full"
+                        required
+                    />
                     <InputError :message="columnForm.errors.name" class="mt-2" />
                 </div>
 
@@ -362,7 +436,13 @@ function dropAfterList(column) {
             <form class="space-y-4" @submit.prevent="submitTask">
                 <div>
                     <InputLabel for="task-title" value="Title" />
-                    <TextInput id="task-title" v-model="taskForm.title" type="text" class="mt-1 w-full" required />
+                    <TextInput
+                        id="task-title"
+                        v-model="taskForm.title"
+                        type="text"
+                        class="mt-1 w-full"
+                        required
+                    />
                     <InputError :message="taskForm.errors.title" class="mt-2" />
                 </div>
 
@@ -381,4 +461,6 @@ function dropAfterList(column) {
             </form>
         </Modal>
     </AppLayout>
+
+    <TaskSheet :sheet-task="sheetTask" :org-labels="orgLabels" />
 </template>

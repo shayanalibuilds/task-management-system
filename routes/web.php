@@ -26,8 +26,12 @@ use App\Http\Controllers\Projects\ProjectSettingsController;
 use App\Http\Controllers\Projects\ReorderColumnsController;
 use App\Http\Controllers\Projects\ShowProjectController;
 use App\Http\Controllers\Projects\StoreColumnController;
+use App\Http\Controllers\Projects\StoreCommentController;
 use App\Http\Controllers\Projects\StoreProjectController;
+use App\Http\Controllers\Projects\StoreSubtaskController;
 use App\Http\Controllers\Projects\StoreTaskController;
+use App\Http\Controllers\Projects\SubtaskController;
+use App\Http\Controllers\Projects\TaskLabelController;
 use App\Http\Controllers\Projects\UpdateColumnController;
 use App\Http\Controllers\Projects\UpdateProjectController;
 use App\Http\Controllers\Projects\UpdateTaskController;
@@ -129,5 +133,29 @@ Route::middleware(['auth', 'org.member'])->prefix('{organization:slug}')->group(
         ->scopeBindings();
     Route::delete('projects/{project}/tasks/{task}', DeleteTaskController::class)
         ->name('projects.tasks.destroy')
+        ->scopeBindings();
+
+    Route::post('projects/{project}/tasks/{task}/comments', StoreCommentController::class)
+        ->name('projects.tasks.comments.store')
+        ->scopeBindings();
+
+    Route::post('projects/{project}/tasks/{task}/subtasks', StoreSubtaskController::class)
+        ->name('projects.tasks.subtasks.store')
+        ->scopeBindings();
+    Route::patch('projects/{project}/tasks/{task}/subtasks/{subtask}', [SubtaskController::class, 'update'])
+        ->name('projects.tasks.subtasks.update')
+        ->scopeBindings();
+    Route::delete('projects/{project}/tasks/{task}/subtasks/{subtask}', [SubtaskController::class, 'destroy'])
+        ->name('projects.tasks.subtasks.destroy')
+        ->scopeBindings();
+
+    Route::post('projects/{project}/tasks/{task}/labels', [TaskLabelController::class, 'store'])
+        ->name('projects.tasks.labels.attach')
+        ->scopeBindings();
+    Route::post('projects/{project}/tasks/{task}/labels/new', [TaskLabelController::class, 'create'])
+        ->name('projects.tasks.labels.create')
+        ->scopeBindings();
+    Route::delete('projects/{project}/tasks/{task}/labels/{label}', [TaskLabelController::class, 'destroy'])
+        ->name('projects.tasks.labels.detach')
         ->scopeBindings();
 });
