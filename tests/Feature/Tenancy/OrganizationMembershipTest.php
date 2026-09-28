@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Enums\OrganizationRole;
-use App\Models\Organization;
 use App\Models\OrganizationInvite;
 use App\Models\User;
 
