@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Models\Notification;
 use App\Models\Organization;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -47,11 +48,33 @@ final class HandleInertiaRequests extends Middleware
                 'organizations' => fn (): array => $this->organizationsFor($request),
             ],
             'organization' => fn (): ?array => $this->currentOrganization($request),
+            'inbox' => [
+                'unread_count' => fn (): ?int => $this->unreadCount($request),
+            ],
             'status' => fn (): ?string => $request->session()->get('status'),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
             ],
         ];
+    }
+
+    /**
+     * Unread inbox rows for the route organization, when on an org page.
+     */
+    private function unreadCount(Request $request): ?int
+    {
+        $user = $request->user();
+        $organization = $request->route('organization');
+
+        if (! $user instanceof \App\Models\User || ! $organization instanceof Organization) {
+            return null;
+        }
+
+        return (int) Notification::query()
+            ->where('organization_id', $organization->id)
+            ->where('user_id', $user->getKey())
+            ->whereNull('read_at')
+            ->count();
     }
 
     /**
