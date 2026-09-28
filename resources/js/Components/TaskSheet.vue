@@ -569,7 +569,7 @@ function close() {
                         </div>
                     </div>
 
-                    <form class="mt-2 flex gap-2" @submit.prevent="addSubtask">
+                    <form v-if="canManage" class="mt-2 flex gap-2" @submit.prevent="addSubtask">
                         <input
                             v-model="newSubtask"
                             type="text"
@@ -625,7 +625,7 @@ function close() {
                         </div>
                     </div>
 
-                    <form class="mt-3" @submit.prevent="postComment">
+                    <form v-if="canManage" class="mt-3" @submit.prevent="postComment">
                         <textarea
                             v-model="commentBody"
                             rows="3"
