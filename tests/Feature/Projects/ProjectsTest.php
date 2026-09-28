@@ -8,7 +8,6 @@ use App\Models\Organization;
 use App\Models\Project;
 use App\Models\ProjectColumn;
 use App\Models\Task;
-use Inertia\Testing\AssertableInertia;
 
 test('an owner creates a project with categorized default columns', function (): void {
     ['organization' => $organization, 'user' => $owner] = organization_with_member();

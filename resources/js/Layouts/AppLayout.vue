@@ -25,19 +25,26 @@ function hasRoute(name) {
     }
 }
 
-const navItems = computed(() => [
-    { name: 'org.dashboard', label: 'Dashboard', icon: 'dashboard', badge: 0 },
-    { name: 'projects.index', label: 'Projects', icon: 'folder', badge: 0 },
-    { name: 'my-tasks.show', label: 'My Tasks', icon: 'check-square', badge: 0 },
-    { name: 'calendar.show', label: 'Calendar', icon: 'calendar', badge: 0 },
-    { name: 'inbox.index', label: 'Inbox', icon: 'inbox', badge: page.props.inbox?.unread_count ?? 0 },
-    { name: 'settings.show', label: 'Settings', icon: 'settings', badge: 0 },
-]
-    .filter((item) => hasRoute(item.name))
-    .map((item) => ({
-        ...item,
-        href: route(item.name, { organization: orgSlug.value }),
-    })));
+const navItems = computed(() =>
+    [
+        { name: 'org.dashboard', label: 'Dashboard', icon: 'dashboard', badge: 0 },
+        { name: 'projects.index', label: 'Projects', icon: 'folder', badge: 0 },
+        { name: 'my-tasks.show', label: 'My Tasks', icon: 'check-square', badge: 0 },
+        { name: 'calendar.show', label: 'Calendar', icon: 'calendar', badge: 0 },
+        {
+            name: 'inbox.index',
+            label: 'Inbox',
+            icon: 'inbox',
+            badge: page.props.inbox?.unread_count ?? 0,
+        },
+        { name: 'settings.show', label: 'Settings', icon: 'settings', badge: 0 },
+    ]
+        .filter((item) => hasRoute(item.name))
+        .map((item) => ({
+            ...item,
+            href: route(item.name, { organization: orgSlug.value }),
+        })),
+);
 
 const pinnedProjects = computed(() => page.props.projects?.pinned ?? []);
 
@@ -63,7 +70,7 @@ function toggleSidebar() {
         <template v-else>
             <button
                 type="button"
-                class="fixed left-3 top-3 z-40 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 shadow-sm md:hidden dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"
+                class="fixed top-3 left-3 z-40 inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 shadow-sm md:hidden dark:border-gray-800 dark:bg-gray-900 dark:text-gray-300"
                 aria-label="Open navigation"
                 @click="mobileOpen = true"
             >
@@ -103,7 +110,10 @@ function toggleSidebar() {
                     </button>
                 </div>
 
-                <nav class="mt-2 flex-1 space-y-1 overflow-y-auto px-3" :aria-label="`${organization.name} navigation`">
+                <nav
+                    class="mt-2 flex-1 space-y-1 overflow-y-auto px-3"
+                    :aria-label="`${organization.name} navigation`"
+                >
                     <SidebarLink
                         v-for="item in navItems"
                         :key="item.name"
@@ -116,13 +126,20 @@ function toggleSidebar() {
                     />
 
                     <div v-if="!collapsed && pinnedProjects.length > 0" class="pt-4">
-                        <p class="px-3 pb-1 text-xs font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500">
+                        <p
+                            class="px-3 pb-1 text-xs font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500"
+                        >
                             Pinned projects
                         </p>
                         <SidebarLink
                             v-for="project in pinnedProjects"
                             :key="project.id"
-                            :href="route('projects.show', { organization: orgSlug, project: project.id })"
+                            :href="
+                                route('projects.show', {
+                                    organization: orgSlug,
+                                    project: project.id,
+                                })
+                            "
                             :label="project.name"
                             icon="folder"
                             :collapsed="collapsed"
@@ -140,7 +157,9 @@ function toggleSidebar() {
                 class="flex min-h-dvh flex-col transition-all duration-200"
                 :class="collapsed ? 'md:pl-[68px]' : 'md:pl-[260px]'"
             >
-                <header class="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-gray-200 bg-white/90 px-4 pl-14 backdrop-blur md:pl-4 dark:border-gray-800 dark:bg-gray-900/90">
+                <header
+                    class="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-gray-200 bg-white/90 px-4 pl-14 backdrop-blur md:pl-4 dark:border-gray-800 dark:bg-gray-900/90"
+                >
                     <nav class="flex items-center gap-1.5 text-sm" aria-label="Breadcrumb">
                         <Link
                             :href="route('org.dashboard', { organization: orgSlug })"
@@ -149,7 +168,10 @@ function toggleSidebar() {
                             {{ organization.name }}
                         </Link>
                         <template v-for="crumb in breadcrumbs" :key="crumb.label">
-                            <AppIcon name="chevron-right" class="h-3.5 w-3.5 text-gray-300 dark:text-gray-600" />
+                            <AppIcon
+                                name="chevron-right"
+                                class="h-3.5 w-3.5 text-gray-300 dark:text-gray-600"
+                            />
                             <Link
                                 v-if="crumb.href"
                                 :href="crumb.href"

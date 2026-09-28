@@ -12,7 +12,10 @@ const user = computed(() => page.props.auth?.user);
 const initials = computed(() => {
     const parts = (user.value?.name ?? '').trim().split(/\s+/);
 
-    return parts.slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join('');
+    return parts
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join('');
 });
 </script>
 
@@ -29,7 +32,9 @@ const initials = computed(() => {
                     {{ initials }}
                 </span>
                 <span v-if="!collapsed" class="min-w-0 flex-1">
-                    <span class="block truncate text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <span
+                        class="block truncate text-sm font-medium text-gray-900 dark:text-gray-100"
+                    >
                         {{ user?.name }}
                     </span>
                     <span class="block truncate text-xs text-gray-500 dark:text-gray-400">
