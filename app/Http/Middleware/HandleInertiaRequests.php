@@ -44,6 +44,7 @@ final class HandleInertiaRequests extends Middleware
                     'email',
                     'email_verified_at',
                 ),
+                'organizations' => fn (): array => $this->organizationsFor($request),
             ],
             'organization' => fn (): ?array => $this->currentOrganization($request),
             'status' => fn (): ?string => $request->session()->get('status'),
@@ -51,6 +52,26 @@ final class HandleInertiaRequests extends Middleware
                 'success' => fn () => $request->session()->get('success'),
             ],
         ];
+    }
+
+    /**
+     * The user's organizations for the switcher, ordered by name.
+     *
+     * @return list<array{id: int, name: string, slug: string}>
+     */
+    private function organizationsFor(Request $request): array
+    {
+        $user = $request->user();
+
+        if ($user === null) {
+            return [];
+        }
+
+        return $user->organizations()
+            ->orderBy('name')
+            ->get()
+            ->map(fn (Organization $organization): array => $organization->only('id', 'name', 'slug'))
+            ->all();
     }
 
     /**

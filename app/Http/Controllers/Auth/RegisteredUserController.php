@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Auth;
 
 use App\Actions\Auth\RegisterUser;
+use App\Http\Controllers\Concerns\RedirectsAfterAuth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\RegisterUserRequest;
 use Illuminate\Http\RedirectResponse;
@@ -14,6 +15,8 @@ use Inertia\Response;
 
 final class RegisteredUserController extends Controller
 {
+    use RedirectsAfterAuth;
+
     public function __construct(private readonly RegisterUser $registerUser)
     {
         //
@@ -32,6 +35,6 @@ final class RegisteredUserController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('profile.edit', absolute: false));
+        return redirect()->intended($this->intendedDestination($request));
     }
 }

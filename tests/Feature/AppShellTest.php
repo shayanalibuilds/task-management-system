@@ -26,8 +26,11 @@ test('users without an organization fall back to their profile', function (): vo
 });
 
 test('organization pages share the navigation context', function (): void {
-    ['organization' => $organization, 'user' => $user] = organization_with_member(OrganizationRole::Admin);
-    $other = Organization::factory()->create(['name' => 'Second Workspace']);
+    $organization = Organization::factory()->create(['name' => 'Alpha Studio']);
+    $user = User::factory()->create();
+    $organization->users()->attach($user, ['role' => OrganizationRole::Admin->value]);
+
+    $other = Organization::factory()->create(['name' => 'Zulu Workspace']);
     $other->users()->attach($user, ['role' => OrganizationRole::Member->value]);
 
     $this->actingAs($user)
