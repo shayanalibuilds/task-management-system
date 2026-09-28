@@ -11,7 +11,9 @@
             "subtasks",
             "assignee",
             "assignees",
-            "prefs"
+            "prefs",
+            "northwind",
+            "self-hosters"
         ],
         "paths": ["storage/inertia-devtools", "./docs/agents/vue-ssr.md"]
     }
