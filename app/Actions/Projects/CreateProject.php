@@ -5,9 +5,11 @@ declare(strict_types=1);
 namespace App\Actions\Projects;
 
 use App\Enums\ColumnCategory;
+use App\Models\Organization;
 use App\Models\Project;
 use App\Models\ProjectColumn;
 use App\Models\User;
+use App\Support\DashboardCache;
 use Illuminate\Support\Facades\DB;
 
 final class CreateProject
@@ -17,7 +19,7 @@ final class CreateProject
      */
     public function handle(array $input): Project
     {
-        return DB::transaction(function () use ($input): Project {
+        $project = DB::transaction(function () use ($input): Project {
             $project = Project::query()->create([
                 'organization_id' => $input['organization']->id,
                 'name' => $input['name'],
@@ -31,6 +33,10 @@ final class CreateProject
 
             return $project;
         });
+
+        DashboardCache::bust($input['organization']->id);
+
+        return $project;
     }
 
     /**

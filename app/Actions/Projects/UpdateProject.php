@@ -6,6 +6,7 @@ namespace App\Actions\Projects;
 
 use App\Enums\ProjectVisibility;
 use App\Models\Project;
+use App\Support\DashboardCache;
 use Illuminate\Support\Facades\DB;
 
 final class UpdateProject
@@ -33,5 +34,7 @@ final class UpdateProject
 
             return $project;
         });
+
+        DashboardCache::bust($project->organization_id);
     }
 }

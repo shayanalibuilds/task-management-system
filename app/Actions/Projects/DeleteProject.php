@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Projects;
 
 use App\Models\Project;
+use App\Support\DashboardCache;
 
 final class DeleteProject
 {
@@ -15,6 +16,9 @@ final class DeleteProject
      */
     public function handle(array $input): void
     {
+        $organizationId = $input['project']->organization_id;
         $input['project']->delete();
+
+        DashboardCache::bust($organizationId);
     }
 }
