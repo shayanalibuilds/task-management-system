@@ -9,6 +9,7 @@ use App\Models\Project;
 use App\Models\ProjectColumn;
 use App\Models\Task;
 use App\Models\User;
+use App\Support\DashboardCache;
 use Illuminate\Support\Facades\DB;
 
 final class UpdateTask
@@ -23,7 +24,7 @@ final class UpdateTask
     {
         $task = $input['task'];
 
-        return DB::transaction(function () use ($task, $input): Task {
+        $task = DB::transaction(function () use ($task, $input): Task {
             $position = $this->slotPosition($task, $input['column'], $input['position_after'] ?? null);
 
             $task->update([
@@ -39,6 +40,10 @@ final class UpdateTask
 
             return $task;
         });
+
+        DashboardCache::bust($input['project']->organization_id);
+
+        return $task;
     }
 
     /**

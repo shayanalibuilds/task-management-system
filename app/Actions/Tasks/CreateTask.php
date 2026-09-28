@@ -9,6 +9,7 @@ use App\Models\Project;
 use App\Models\ProjectColumn;
 use App\Models\Task;
 use App\Models\User;
+use App\Support\DashboardCache;
 use Illuminate\Support\Facades\DB;
 
 final class CreateTask
@@ -20,7 +21,7 @@ final class CreateTask
      */
     public function handle(array $input): Task
     {
-        return DB::transaction(function () use ($input): Task {
+        $task = DB::transaction(function () use ($input): Task {
             $position = (float) Task::query()
                 ->where('column_id', $input['column']->id)
                 ->max('position');
@@ -38,5 +39,9 @@ final class CreateTask
                 'created_by' => $input['user']->getKey(),
             ]);
         });
+
+        DashboardCache::bust($input['project']->organization_id);
+
+        return $task;
     }
 }
