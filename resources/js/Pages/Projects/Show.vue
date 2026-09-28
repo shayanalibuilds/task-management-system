@@ -364,7 +364,8 @@ function openTask(task) {
                         <div
                             v-for="task in column.tasks"
                             :key="task.id"
-                            class="flex items-center gap-3 px-4 py-3 text-sm"
+                            class="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                            @click="openTask(task)"
                         >
                             <p
                                 class="min-w-0 flex-1 truncate font-medium text-gray-900 dark:text-gray-100"
