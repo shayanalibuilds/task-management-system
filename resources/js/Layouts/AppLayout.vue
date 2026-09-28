@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import AppIcon from '@/Components/AppIcon.vue';
-import NavLink from '@/Components/NavLink.vue';
+import NavLink from '@/Components/SidebarLink.vue';
 import OrgSwitcher from '@/Components/OrgSwitcher.vue';
 import ThemeToggle from '@/Components/ThemeToggle.vue';
 import UserMenu from '@/Components/UserMenu.vue';
@@ -104,7 +104,7 @@ function toggleSidebar() {
                 </div>
 
                 <nav class="mt-2 flex-1 space-y-1 overflow-y-auto px-3" :aria-label="`${organization.name} navigation`">
-                    <NavLink
+                    <SidebarLink
                         v-for="item in navItems"
                         :key="item.name"
                         :href="item.href"
@@ -119,7 +119,7 @@ function toggleSidebar() {
                         <p class="px-3 pb-1 text-xs font-medium tracking-wide text-gray-400 uppercase dark:text-gray-500">
                             Pinned projects
                         </p>
-                        <NavLink
+                        <SidebarLink
                             v-for="project in pinnedProjects"
                             :key="project.id"
                             :href="route('projects.show', { organization: orgSlug, project: project.id })"

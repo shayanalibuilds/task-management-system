@@ -23,7 +23,7 @@ test('new users can register', function (): void {
     ]);
 
     $this->assertAuthenticated();
-    $response->assertRedirect(route('profile.edit', absolute: false));
+    $response->assertRedirect('/test-user-workspace');
 
     $user = User::where('email', 'test@example.com')->first();
     expect($user)->not->toBeNull()
