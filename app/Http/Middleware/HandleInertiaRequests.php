@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Notification;
 use App\Models\Organization;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -66,7 +67,7 @@ final class HandleInertiaRequests extends Middleware
         $user = $request->user();
         $organization = $request->route('organization');
 
-        if (! $user instanceof \App\Models\User || ! $organization instanceof Organization) {
+        if (! $user instanceof User || ! $organization instanceof Organization) {
             return null;
         }
 
