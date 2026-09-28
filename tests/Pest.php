@@ -6,6 +6,8 @@ use Illuminate\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
+require __DIR__.'/helpers.php';
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
