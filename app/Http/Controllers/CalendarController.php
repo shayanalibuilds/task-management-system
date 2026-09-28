@@ -27,7 +27,16 @@ final class CalendarController extends Controller
         $role = $organization->roleFor($user);
 
         $monthParam = (string) $request->query('month', '');
-        $month = Carbon::parse($monthParam !== '' ? $monthParam.'-01' : 'today')->startOfDay();
+
+        try {
+            $month = Carbon::parse($monthParam !== '' ? $monthParam.'-01' : 'today')->startOfDay();
+
+            if ($month->format('Y-m') !== $monthParam) {
+                $month = Carbon::today()->startOfDay();
+            }
+        } catch (\Throwable) {
+            $month = Carbon::today()->startOfDay();
+        }
 
         $includedProjectIds = $organization->projects()
             ->whereHas('includedMembers', fn ($query) => $query->whereKey($user->id))
