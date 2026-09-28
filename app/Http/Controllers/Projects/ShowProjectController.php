@@ -42,7 +42,10 @@ final class ShowProjectController extends Controller
                 ])->all(),
             ]);
 
+        $view = (string) $request->query('view', 'board');
+
         return Inertia::render('Projects/Show', [
+            'view' => $view,
             'project' => [
                 'id' => $project->id,
                 'name' => $project->name,

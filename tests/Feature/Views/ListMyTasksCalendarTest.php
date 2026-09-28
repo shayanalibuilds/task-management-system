@@ -125,8 +125,8 @@ test('my tasks hides restricted projects the user cannot see', function (): void
         ->assertInertia(
             fn (AssertableInertia $page): AssertableInertia => $page
                 ->component('MyTasks/Index')
-                ->has('sections.0.tasks', 1)
-                ->where('sections.0.tasks.0.title', 'Open project task'),
+                ->has('sections.3.tasks', 1)
+                ->where('sections.3.tasks.0.title', 'Open project task'),
         );
 });
 
@@ -179,13 +179,11 @@ test('calendar cells hold the tasks due that day', function (): void {
 
     $response->assertOk();
 
-    $inertia = $response->viewData('page');
-    /** @var array<string, mixed> $props */
-    $props = json_decode((string) ($inertia->page ?? '{}'), true);
+    $props = inertia_props($response);
 
     $titles = [];
 
-    foreach (($props['props']['weeks'] ?? []) as $week) {
+    foreach (($props['weeks'] ?? []) as $week) {
         foreach ($week as $day) {
             if (($day['date'] ?? '') === '2026-03-15') {
                 foreach (($day['tasks'] ?? []) as $task) {
@@ -215,12 +213,10 @@ test('calendar tasks respect project visibility', function (): void {
 
     $response->assertOk();
 
-    $inertia = $response->viewData('page');
-    /** @var array<string, mixed> $props */
-    $props = json_decode((string) ($inertia->page ?? '{}'), true);
+    $props = inertia_props($response);
 
     $titles = [];
-    foreach (($props['props']['weeks'] ?? []) as $week) {
+    foreach (($props['weeks'] ?? []) as $week) {
         foreach ($week as $day) {
             foreach (($day['tasks'] ?? []) as $task) {
                 $titles[] = $task['title'];
