@@ -5,7 +5,7 @@ import InputLabel from '@/Components/InputLabel.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import TextInput from '@/Components/TextInput.vue';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, useForm, usePage } from '@inertiajs/vue3';
 
 const mustVerifyEmail = usePage().props.mustVerifyEmail;
@@ -52,7 +52,7 @@ function closeDeletion() {
 </script>
 
 <template>
-    <AuthenticatedLayout>
+    <AppLayout :breadcrumbs="[{ label: 'Account' }]">
         <div class="max-w-xl space-y-6">
             <section class="rounded-xl bg-white p-6 shadow-sm ring-1 ring-gray-200">
                 <h2 class="text-lg font-semibold text-gray-900">Profile</h2>
@@ -207,5 +207,5 @@ function closeDeletion() {
                 </form>
             </section>
         </div>
-    </AuthenticatedLayout>
+    </AppLayout>
 </template>
