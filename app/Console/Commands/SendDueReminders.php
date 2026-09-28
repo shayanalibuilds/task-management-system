@@ -65,8 +65,10 @@ final class SendDueReminders extends Command
             }
 
             if (! $dryRun) {
+                $project = $task->project;
+
                 Notification::query()->create([
-                    'organization_id' => $task->project->organization_id,
+                    'organization_id' => $project->organization_id,
                     'user_id' => $assignee->id,
                     'type' => Notification::TYPE_DUE_REMINDER,
                     'task_id' => $task->id,

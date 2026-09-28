@@ -20,6 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property string $icon
  * @property ProjectVisibility $visibility
  * @property int $created_by
+ * @property Organization $organization
  */
 final class Project extends Model
 {

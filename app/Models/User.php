@@ -44,7 +44,7 @@ class User extends Authenticatable
     }
 
     /**
-     * @return BelongsToMany<Organization, $this>
+     * @return BelongsToMany<Organization, $this, Membership, 'pivot'>
      */
     public function organizations(): BelongsToMany
     {

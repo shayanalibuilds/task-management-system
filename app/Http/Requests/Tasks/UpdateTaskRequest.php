@@ -10,6 +10,7 @@ use App\Models\Organization;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
@@ -22,8 +23,10 @@ final class UpdateTaskRequest extends FormRequest
     {
         $project = $this->route('project');
 
-        return $project instanceof Project
-            && $project->organization->roleFor($this->user())?->isAtLeast(OrganizationRole::Member) === true;
+        $user = $this->user();
+
+        return $project instanceof Project && $user !== null
+            && $project->organization->roleFor($user)?->isAtLeast(OrganizationRole::Member) === true;
     }
 
     /**
@@ -39,9 +42,16 @@ final class UpdateTaskRequest extends FormRequest
             'title' => ['sometimes', 'string', 'max:255'],
             'description' => ['sometimes', 'nullable', 'string', 'max:10000'],
             'priority' => ['sometimes', 'nullable', new Enum(TaskPriority::class)],
-            'assignee_id' => ['sometimes', 'nullable', Rule::exists('users', 'id')->whereIn('id', function ($query) use ($organizationId): void {
-                $query->select('user_id')->from('memberships')->where('organization_id', $organizationId);
-            })],
+            'assignee_id' => ['sometimes', 'nullable', 'integer', function (string $attribute, mixed $value, \Closure $fail) use ($organizationId): void {
+                $isMember = DB::table('memberships')
+                    ->where('organization_id', $organizationId)
+                    ->where('user_id', $value)
+                    ->exists();
+
+                if (! $isMember) {
+                    $fail('The chosen assignee is not a member of this workspace.');
+                }
+            }],
             'start_on' => ['sometimes', 'nullable', 'date'],
             'due_on' => ['sometimes', 'nullable', 'date', 'after_or_equal:start_on'],
             'position_after' => ['sometimes', 'nullable', 'numeric'],
@@ -57,7 +67,7 @@ final class UpdateTaskRequest extends FormRequest
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array{column_id: int, title?: string, description?: string|null, priority?: TaskPriority, assignee?: User|null, start_on?: string|null, due_on?: string|null, position_after?: float|null}
      */
     public function validated($key = null, $default = null): array
     {
@@ -73,7 +83,9 @@ final class UpdateTaskRequest extends FormRequest
         }
 
         if (array_key_exists('description', $validated)) {
-            $resolved['description'] = $validated['description'];
+            $resolved['description'] = $validated['description'] === null
+                ? null
+                : (string) $validated['description'];
         }
 
         if (array_key_exists('priority', $validated)) {
@@ -89,11 +101,15 @@ final class UpdateTaskRequest extends FormRequest
         }
 
         if (array_key_exists('start_on', $validated)) {
-            $resolved['start_on'] = $validated['start_on'];
+            $resolved['start_on'] = $validated['start_on'] === null
+                ? null
+                : (string) $validated['start_on'];
         }
 
         if (array_key_exists('due_on', $validated)) {
-            $resolved['due_on'] = $validated['due_on'];
+            $resolved['due_on'] = $validated['due_on'] === null
+                ? null
+                : (string) $validated['due_on'];
         }
 
         if (array_key_exists('position_after', $validated)) {

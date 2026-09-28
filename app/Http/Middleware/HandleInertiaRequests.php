@@ -81,7 +81,7 @@ final class HandleInertiaRequests extends Middleware
     /**
      * The user's organizations for the switcher, ordered by name.
      *
-     * @return list<array{id: int, name: string, slug: string}>
+     * @return array<int, array{id: int, name: string, slug: string}>
      */
     private function organizationsFor(Request $request): array
     {
@@ -94,7 +94,12 @@ final class HandleInertiaRequests extends Middleware
         return $user->organizations()
             ->orderBy('name')
             ->get()
-            ->map(fn (Organization $organization): array => $organization->only('id', 'name', 'slug'))
+            ->map(fn (Organization $organization): array => [
+                'id' => $organization->id,
+                'name' => $organization->name,
+                'slug' => $organization->slug,
+            ])
+            ->values()
             ->all();
     }
 

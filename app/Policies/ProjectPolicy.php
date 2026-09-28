@@ -16,7 +16,8 @@ final class ProjectPolicy
      */
     public function view(User $user, Project $project): bool
     {
-        $role = $project->organization->roleFor($user);
+        $organization = $project->organization;
+        $role = $organization->roleFor($user);
 
         if ($role === null) {
             return false;

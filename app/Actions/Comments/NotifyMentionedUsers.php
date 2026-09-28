@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions\Comments;
 
+use App\Enums\ProjectVisibility;
 use App\Models\Notification;
 use App\Models\Task;
 use App\Models\User;
@@ -21,8 +22,10 @@ final class NotifyMentionedUsers
     {
         $task = $input['task'];
         $actor = $input['actor'];
+        $project = $task->project;
 
-        $visible = $task->project->visibility === 'open';
+        $visible = $project->visibility === ProjectVisibility::Open;
+        $organization = $project->organization;
 
         foreach ($input['mention_ids'] as $userId) {
             if ($userId === $actor->getKey()) {
@@ -35,16 +38,18 @@ final class NotifyMentionedUsers
                 continue;
             }
 
-            $canSee = $visible
-                ? $task->project->organization->hasMember($userId)
-                : Gate::forUser($mentioned)->allows('view', $task->project);
+            if ($visible) {
+                $canSee = $organization->hasMember($userId);
+            } else {
+                $canSee = Gate::forUser($mentioned)->allows('view', $project);
+            }
 
             if (! $canSee) {
                 continue;
             }
 
             Notification::query()->create([
-                'organization_id' => $task->project->organization_id,
+                'organization_id' => $project->organization_id,
                 'user_id' => $userId,
                 'type' => 'mention',
                 'task_id' => $task->id,

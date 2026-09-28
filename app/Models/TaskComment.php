@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
  * @property string $body
  * @property array<int, int>|null $mentions
  * @property Carbon $created_at
+ * @property User $author
  */
 final class TaskComment extends Model
 {

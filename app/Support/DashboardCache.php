@@ -28,7 +28,7 @@ final readonly class DashboardCache
      */
     public function remember(string $name, callable $callback): mixed
     {
-        return Cache::remember($this->key($name), self::TTL_SECONDS, $callback);
+        return Cache::remember($this->key($name), self::TTL_SECONDS, fn (): mixed => $callback());
     }
 
     /**

@@ -13,9 +13,9 @@ use App\Models\User;
 use App\Support\DashboardCache;
 use Illuminate\Support\Facades\DB;
 
-final class UpdateTask
+final readonly class UpdateTask
 {
-    public function __construct(private readonly CreateNotification $notify) {}
+    public function __construct(private CreateNotification $notify) {}
 
     /**
      * Move or edit a task. The drop position is the fractional slot after

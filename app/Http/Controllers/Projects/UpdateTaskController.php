@@ -11,6 +11,7 @@ use App\Models\Organization;
 use App\Models\Project;
 use App\Models\ProjectColumn;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 
 final class UpdateTaskController extends Controller

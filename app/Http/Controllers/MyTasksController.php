@@ -41,7 +41,9 @@ final class MyTasksController extends Controller
             ->with(['project:id,organization_id,name,visibility', 'column:id,name,category'])
             ->get()
             ->filter(function (Task $task) use ($role, $includedProjectIds): bool {
-                if ($task->project->visibility === ProjectVisibility::Open) {
+                $project = $task->project;
+
+                if ($project->visibility === ProjectVisibility::Open) {
                     return true;
                 }
 
@@ -49,7 +51,7 @@ final class MyTasksController extends Controller
                     return true;
                 }
 
-                return $includedProjectIds->contains($task->project->id);
+                return $includedProjectIds->contains($project->id);
             })
             ->values();
 

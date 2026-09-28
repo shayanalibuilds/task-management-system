@@ -21,7 +21,7 @@ final class CreateOrganization
     {
         $owner = $input['owner'];
 
-        $organization = DB::transaction(function () use ($input, $owner): Organization {
+        return DB::transaction(function () use ($input, $owner): Organization {
             $organization = Organization::query()->create([
                 'name' => $input['name'],
                 'slug' => $this->uniqueSlug($input['slug'] ?? $input['name']),
@@ -33,8 +33,6 @@ final class CreateOrganization
 
             return $organization;
         });
-
-        return $organization;
     }
 
     /**

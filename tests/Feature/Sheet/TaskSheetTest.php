@@ -19,7 +19,7 @@ function sheet_project(OrganizationRole $role = OrganizationRole::Owner): array
     $column = ProjectColumn::factory()->for($project)->create();
     $task = Task::factory()->for($project)->create(['column_id' => $column->id]);
 
-    return compact('organization', 'user', 'project', 'column', 'task');
+    return ['organization' => $organization, 'user' => $user, 'project' => $project, 'column' => $column, 'task' => $task];
 }
 
 test('the sheet loads task details when task is in the query', function (): void {

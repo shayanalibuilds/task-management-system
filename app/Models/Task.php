@@ -25,6 +25,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $due_on
  * @property float $position
  * @property int $created_by
+ * @property Project $project
+ * @property ProjectColumn $column
  */
 final class Task extends Model
 {

@@ -5,17 +5,16 @@ declare(strict_types=1);
 namespace App\Actions\Comments;
 
 use App\Actions\Notifications\CreateNotification;
-use App\Models\Organization;
 use App\Models\Task;
 use App\Models\TaskComment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
 
-final class AddComment
+final readonly class AddComment
 {
     public function __construct(
-        private readonly NotifyMentionedUsers $notifyMentionedUsers,
-        private readonly CreateNotification $notify,
+        private NotifyMentionedUsers $notifyMentionedUsers,
+        private CreateNotification $notify,
     ) {}
 
     /**
@@ -27,9 +26,8 @@ final class AddComment
     {
         $task = $input['task'];
         $author = $input['author'];
-
-        /** @var Organization $organization */
-        $organization = $task->project->organization;
+        $project = $task->project;
+        $organization = $project->organization;
 
         $mentionIds = MentionParser::extract(
             $input['body'],

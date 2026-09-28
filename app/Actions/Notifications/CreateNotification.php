@@ -17,7 +17,7 @@ final class CreateNotification
     /**
      * @param  array{organization_id: int, user_id: int, type: string, task_id?: ?int, actor_id?: ?int, message: string}  $input
      */
-    public function handle(array $input): ?Notification
+    public function handle(array $input): Notification
     {
         return Notification::query()->create([
             'organization_id' => $input['organization_id'],
@@ -38,8 +38,10 @@ final class CreateNotification
             return;
         }
 
+        $project = $task->project;
+
         $this->handle([
-            'organization_id' => $task->project->organization_id,
+            'organization_id' => $project->organization_id,
             'user_id' => $assignee->getKey(),
             'type' => Notification::TYPE_ASSIGNMENT,
             'task_id' => $task->id,
@@ -57,8 +59,10 @@ final class CreateNotification
             return;
         }
 
+        $project = $task->project;
+
         $this->handle([
-            'organization_id' => $task->project->organization_id,
+            'organization_id' => $project->organization_id,
             'user_id' => $task->assignee_id,
             'type' => Notification::TYPE_COMMENT,
             'task_id' => $task->id,

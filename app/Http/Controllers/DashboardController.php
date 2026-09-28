@@ -111,58 +111,50 @@ final class DashboardController extends Controller
             ->orderBy('tasks.due_on')
             ->select('tasks.*');
 
-        $todayTasks = $cache->remember('today', function () use ($mine, $today): array {
-            return $mine()
-                ->whereDate('tasks.due_on', $today->toDateString())
-                ->with('project:id,name')
-                ->get()
-                ->map(fn (Task $task): array => [
-                    'id' => $task->id,
-                    'title' => $task->title,
-                    'due_on' => $task->due_on?->toDateString(),
-                    'priority' => $task->priority->value,
-                    'project_id' => $task->project->id,
-                    'project' => $task->project->name,
-                ])->values()->all();
-        });
+        $todayTasks = $cache->remember('today', fn (): array => $mine()
+            ->whereDate('tasks.due_on', $today->toDateString())
+            ->with('project:id,name')
+            ->get()
+            ->map(fn (Task $task): array => [
+                'id' => $task->id,
+                'title' => $task->title,
+                'due_on' => $task->due_on?->toDateString(),
+                'priority' => $task->priority->value,
+                'project_id' => $task->project->id,
+                'project' => $task->project->name,
+            ])->values()->all());
 
-        $dueSoon = $cache->remember('due_soon', function () use ($mine, $today): array {
-            return $mine()
-                ->whereDate('tasks.due_on', '>', $today->toDateString())
-                ->whereDate('tasks.due_on', '<=', $today->copy()->addDays(7)->toDateString())
-                ->with('project:id,name')
-                ->get()
-                ->map(fn (Task $task): array => [
-                    'id' => $task->id,
-                    'title' => $task->title,
-                    'due_on' => $task->due_on?->toDateString(),
-                    'priority' => $task->priority->value,
-                    'project_id' => $task->project->id,
-                    'project' => $task->project->name,
-                ])->values()->all();
-        });
+        $dueSoon = $cache->remember('due_soon', fn (): array => $mine()
+            ->whereDate('tasks.due_on', '>', $today->toDateString())
+            ->whereDate('tasks.due_on', '<=', $today->copy()->addDays(7)->toDateString())
+            ->with('project:id,name')
+            ->get()
+            ->map(fn (Task $task): array => [
+                'id' => $task->id,
+                'title' => $task->title,
+                'due_on' => $task->due_on?->toDateString(),
+                'priority' => $task->priority->value,
+                'project_id' => $task->project->id,
+                'project' => $task->project->name,
+            ])->values()->all());
 
-        $recentProjects = $cache->remember('recent_projects', function () use ($visibleProjects, $user): array {
-            return $visibleProjects
-                ->sortByDesc('updated_at')
-                ->take(4)
-                ->map(function (Project $project) use ($user): array {
-                    return [
-                        'id' => $project->id,
-                        'name' => $project->name,
-                        'color' => $project->color,
-                        'icon' => $project->icon,
-                        'visibility' => $project->visibility->value,
-                        'open_tasks' => $project->tasks()
-                            ->join('project_columns', 'project_columns.id', '=', 'tasks.column_id')
-                            ->where('project_columns.category', '!=', ColumnCategory::Done->value)
-                            ->count(),
-                        'can_manage' => $user->can('manage', $project),
-                    ];
-                })
-                ->values()
-                ->all();
-        });
+        $recentProjects = $cache->remember('recent_projects', fn (): array => $visibleProjects
+            ->sortByDesc('updated_at')
+            ->take(4)
+            ->map(fn (Project $project): array => [
+                'id' => $project->id,
+                'name' => $project->name,
+                'color' => $project->color,
+                'icon' => $project->icon,
+                'visibility' => $project->visibility->value,
+                'open_tasks' => $project->tasks()
+                    ->join('project_columns', 'project_columns.id', '=', 'tasks.column_id')
+                    ->where('project_columns.category', '!=', ColumnCategory::Done->value)
+                    ->count(),
+                'can_manage' => $user->can('manage', $project),
+            ])
+            ->values()
+            ->all());
 
         return Inertia::render('Dashboard/Index', [
             'organization' => [
