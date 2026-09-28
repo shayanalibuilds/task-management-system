@@ -16,6 +16,16 @@ use App\Http\Controllers\Members\InviteMemberController;
 use App\Http\Controllers\Members\LeaveOrganizationController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Projects\DeleteColumnController;
+use App\Http\Controllers\Projects\DeleteProjectController;
+use App\Http\Controllers\Projects\ListProjectsController;
+use App\Http\Controllers\Projects\ProjectSettingsController;
+use App\Http\Controllers\Projects\ReorderColumnsController;
+use App\Http\Controllers\Projects\ShowProjectController;
+use App\Http\Controllers\Projects\StoreColumnController;
+use App\Http\Controllers\Projects\StoreProjectController;
+use App\Http\Controllers\Projects\UpdateColumnController;
+use App\Http\Controllers\Projects\UpdateProjectController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -75,4 +85,31 @@ Route::middleware(['auth', 'org.member'])->prefix('{organization:slug}')->group(
 
     Route::post('members/leave', LeaveOrganizationController::class)
         ->name('members.leave');
+
+    Route::get('projects', ListProjectsController::class)->name('projects.index');
+    Route::post('projects', StoreProjectController::class)->name('projects.store');
+    Route::get('projects/{project}', ShowProjectController::class)
+        ->name('projects.show')
+        ->scopeBindings();
+    Route::get('projects/{project}/settings', ProjectSettingsController::class)
+        ->name('projects.settings')
+        ->scopeBindings();
+    Route::patch('projects/{project}', UpdateProjectController::class)
+        ->name('projects.update')
+        ->scopeBindings();
+    Route::delete('projects/{project}', DeleteProjectController::class)
+        ->name('projects.destroy')
+        ->scopeBindings();
+    Route::post('projects/{project}/columns', StoreColumnController::class)
+        ->name('projects.columns.store')
+        ->scopeBindings();
+    Route::patch('projects/{project}/columns/reorder', ReorderColumnsController::class)
+        ->name('projects.columns.reorder')
+        ->scopeBindings();
+    Route::patch('projects/{project}/columns/{column}', UpdateColumnController::class)
+        ->name('projects.columns.update')
+        ->scopeBindings();
+    Route::delete('projects/{project}/columns/{column}', DeleteColumnController::class)
+        ->name('projects.columns.destroy')
+        ->scopeBindings();
 });

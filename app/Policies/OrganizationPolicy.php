@@ -19,6 +19,14 @@ final class OrganizationPolicy
     }
 
     /**
+     * Owners and admins run the organization.
+     */
+    public function manage(User $user, Organization $organization): bool
+    {
+        return $organization->roleFor($user)?->canManage() ?? false;
+    }
+
+    /**
      * Members may leave; the last owner may not.
      */
     public function leave(User $user, Organization $organization): bool

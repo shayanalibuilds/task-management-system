@@ -71,8 +71,9 @@ test('a column holding tasks cannot be deleted', function (): void {
     Task::factory()->for($project)->create(['column_id' => $column->id]);
 
     $this->actingAs($owner)
+        ->from(route('projects.settings', ['organization' => $organization, 'project' => $project]))
         ->delete(route('projects.columns.destroy', ['organization' => $organization, 'project' => $project, 'column' => $column]))
-        ->assertForbidden();
+        ->assertSessionHasErrors('column');
 
     expect($column->fresh()->exists())->toBeTrue();
 });
@@ -86,7 +87,7 @@ test('an empty column can be deleted', function (): void {
         ->delete(route('projects.columns.destroy', ['organization' => $organization, 'project' => $project, 'column' => $column]))
         ->assertRedirect();
 
-    expect($column->fresh()->exists())->toBeFalse();
+    expect(ProjectColumn::query()->whereKey($column->id)->exists())->toBeFalse();
 });
 
 test('columns can be reordered with fractional positions', function (): void {
