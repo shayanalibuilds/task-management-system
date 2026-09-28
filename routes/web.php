@@ -10,7 +10,10 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Members\InviteMemberController;
+use App\Http\Controllers\Members\LeaveOrganizationController;
 use App\Http\Controllers\PasswordController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -62,4 +65,14 @@ Route::middleware('auth')->group(function (): void {
     Route::get('profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'org.member'])->prefix('{organization:slug}')->group(function (): void {
+    Route::get('/', DashboardController::class)->name('org.dashboard');
+
+    Route::post('members/invites', InviteMemberController::class)
+        ->name('members.invites.store');
+
+    Route::post('members/leave', LeaveOrganizationController::class)
+        ->name('members.leave');
 });
