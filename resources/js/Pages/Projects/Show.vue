@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import AppIcon from '@/Components/AppIcon.vue';
+import TaskSheet from '@/Components/TaskSheet.vue';
 import Modal from '@/Components/Modal.vue';
 import InputLabel from '@/Components/InputLabel.vue';
 import TextInput from '@/Components/TextInput.vue';
@@ -14,6 +15,8 @@ const orgSlug = computed(() => page.props.organization.slug);
 const project = computed(() => page.props.project);
 const canManage = computed(() => page.props.can_manage ?? false);
 const view = computed(() => page.props.view ?? 'board');
+const sheetTask = computed(() => page.props.sheet?.task ?? null);
+const orgLabels = computed(() => page.props.org_labels ?? []);
 
 function hrefFor(nextView) {
     return route('projects.show', {
@@ -136,6 +139,21 @@ function dropBefore(column, index) {
 function dropAfterList(column) {
     dropOnColumn(column, undefined);
 }
+
+function openTask(task) {
+    if (dragging.value !== null) {
+        return;
+    }
+
+    router.get(route('projects.show', {
+        organization: orgSlug.value,
+        project: project.value.id,
+        _query: { task: task.id },
+    }), {}, {
+        preserveScroll: true,
+        preserveState: true,
+    });
+}
 </script>
 
 <template>
@@ -233,6 +251,7 @@ function dropAfterList(column) {
                                 class="cursor-grab rounded-lg border border-gray-200 bg-white p-3 text-sm text-gray-800 shadow-sm active:cursor-grabbing dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200"
                                 @dragstart="startDrag(task, column)"
                                 @dragend="dragging = null"
+                                @click="openTask(task)"
                             >
                                 <p class="font-medium">{{ task.title }}</p>
                                 <div class="mt-2 flex items-center gap-2">
@@ -251,7 +270,9 @@ function dropAfterList(column) {
                                     </span>
                                 </div>
                             </div>
-                        </template>
+                        
+<TaskSheet :sheet-task="sheetTask" :org-labels="orgLabels" />
+</template>
                     </div>
 
                     <button
@@ -381,4 +402,6 @@ function dropAfterList(column) {
             </form>
         </Modal>
     </AppLayout>
+
+<TaskSheet :sheet-task="sheetTask" :org-labels="orgLabels" />
 </template>
