@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Projects;
 
 use App\Enums\ColumnCategory;
+use App\Enums\ProjectVisibility;
 use App\Models\Organization;
 use App\Models\Project;
 use App\Models\ProjectColumn;

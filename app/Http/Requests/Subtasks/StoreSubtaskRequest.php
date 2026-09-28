@@ -17,8 +17,10 @@ final class StoreSubtaskRequest extends FormRequest
     {
         $project = $this->route('project');
 
-        return $project instanceof Project
-            && $project->organization->roleFor($this->user())?->isAtLeast(OrganizationRole::Member) === true;
+        $user = $this->user();
+
+        return $project instanceof Project && $user !== null
+            && $project->organization->roleFor($user)?->isAtLeast(OrganizationRole::Member) === true;
     }
 
     /**

@@ -18,7 +18,7 @@ function dashboard_project(Organization $organization, string $visibility = 'ope
     $inFlight = ProjectColumn::factory()->for($project)->create(['category' => ColumnCategory::InFlight]);
     $done = ProjectColumn::factory()->for($project)->create(['category' => ColumnCategory::Done]);
 
-    return compact('project', 'todo', 'inFlight', 'done');
+    return ['project' => $project, 'todo' => $todo, 'inFlight' => $inFlight, 'done' => $done];
 }
 
 test('the dashboard renders stats, today, distribution and recent projects', function (): void {

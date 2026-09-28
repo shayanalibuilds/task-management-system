@@ -33,7 +33,7 @@ final class OrganizationPolicy
     {
         $role = $organization->roleFor($user);
 
-        if ($role === null) {
+        if (! $role instanceof OrganizationRole) {
             return false;
         }
 

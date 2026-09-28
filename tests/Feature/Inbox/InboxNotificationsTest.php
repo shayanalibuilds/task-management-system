@@ -18,7 +18,7 @@ function inbox_fixture(OrganizationRole $authorRole = OrganizationRole::Owner): 
     $column = ProjectColumn::factory()->for($project)->create();
     $task = Task::factory()->for($project)->create(['column_id' => $column->id, 'assignee_id' => $assignee->id]);
 
-    return compact('organization', 'owner', 'assignee', 'project', 'column', 'task');
+    return ['organization' => $organization, 'owner' => $owner, 'assignee' => $assignee, 'project' => $project, 'column' => $column, 'task' => $task];
 }
 
 test('assigning a task notifies the new assignee', function (): void {

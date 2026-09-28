@@ -73,6 +73,32 @@ const palette = [
 const commentBody = ref('');
 const postingComment = ref(false);
 
+/**
+ * Split a comment body into plain text and mention chips. Mention markup is
+ * authored as @[Full Name](user:1) — only the stored mention ids get chips.
+ */
+function commentSegments(body) {
+    const segments = [];
+    const pattern = /@\[([^\]]+)\]\(user:(\d+)\)/g;
+    let cursor = 0;
+    let match;
+
+    while ((match = pattern.exec(body)) !== null) {
+        if (match.index > cursor) {
+            segments.push({ type: 'text', value: body.slice(cursor, match.index) });
+        }
+
+        segments.push({ type: 'mention', value: match[1] });
+        cursor = match.index + match[0].length;
+    }
+
+    if (cursor < body.length) {
+        segments.push({ type: 'text', value: body.slice(cursor) });
+    }
+
+    return segments;
+}
+
 function saveDetail() {
     router.patch(
         route('projects.tasks.update', {
@@ -543,7 +569,7 @@ function close() {
                         </div>
                     </div>
 
-                    <form class="mt-2 flex gap-2" @submit.prevent="addSubtask">
+                    <form v-if="canManage" class="mt-2 flex gap-2" @submit.prevent="addSubtask">
                         <input
                             v-model="newSubtask"
                             type="text"
@@ -586,12 +612,20 @@ function close() {
                             <p
                                 class="mt-1 text-sm whitespace-pre-wrap text-gray-800 dark:text-gray-200"
                             >
-                                {{ comment.body }}
+                                <template
+                                    v-for="(segment, index) in commentSegments(comment.body)"
+                                    :key="index"
+                                    ><span
+                                        v-if="segment.type === 'mention'"
+                                        class="rounded bg-indigo-50 px-1 py-0.5 text-xs font-medium text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300"
+                                        >@{{ segment.value }}</span
+                                    ><template v-else>{{ segment.value }}</template></template
+                                >
                             </p>
                         </div>
                     </div>
 
-                    <form class="mt-3" @submit.prevent="postComment">
+                    <form v-if="canManage" class="mt-3" @submit.prevent="postComment">
                         <textarea
                             v-model="commentBody"
                             rows="3"

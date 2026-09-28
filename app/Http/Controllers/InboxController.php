@@ -38,7 +38,7 @@ final class InboxController extends Controller
                     'title' => $notification->task->title,
                     'project_id' => $notification->task->project_id,
                 ] : null,
-                'created_at' => $notification->created_at->toISOString(),
+                'created_at' => $notification->created_at?->toISOString(),
             ])->all(),
             'unread_count' => $this->unreadCount($organization, $user),
         ]);

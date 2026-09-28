@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { usePage, useForm, router } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import AppIcon from '@/Components/AppIcon.vue';
@@ -32,6 +32,10 @@ const dragging = ref(null);
 function syncColumns() {
     columns.value = [...(page.props.columns ?? [])];
 }
+
+// Keep the optimistic board in sync whenever a write triggers fresh props:
+// quick-add, drag PATCH responses, column edits and sheet actions.
+watch(() => page.props.columns, syncColumns);
 
 const showingAddColumn = ref(false);
 const columnForm = useForm({
@@ -313,6 +317,7 @@ function openTask(task) {
                     </div>
 
                     <button
+                        v-if="canManage"
                         type="button"
                         class="mx-3 mb-3 flex items-center gap-2 rounded-lg px-2 py-1.5 text-left text-xs font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-800 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200"
                         @click="openAddTask(column)"
@@ -364,7 +369,8 @@ function openTask(task) {
                         <div
                             v-for="task in column.tasks"
                             :key="task.id"
-                            class="flex items-center gap-3 px-4 py-3 text-sm"
+                            class="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800"
+                            @click="openTask(task)"
                         >
                             <p
                                 class="min-w-0 flex-1 truncate font-medium text-gray-900 dark:text-gray-100"

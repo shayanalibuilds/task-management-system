@@ -54,7 +54,9 @@ final class CalendarController extends Controller
             ->with(['project:id,organization_id,name,visibility', 'column:id,name,category'])
             ->get()
             ->filter(function (Task $task) use ($role, $includedProjectIds): bool {
-                if ($task->project->visibility === ProjectVisibility::Open) {
+                $project = $task->project;
+
+                if ($project->visibility === ProjectVisibility::Open) {
                     return true;
                 }
 
@@ -62,10 +64,10 @@ final class CalendarController extends Controller
                     return true;
                 }
 
-                return $includedProjectIds->contains($task->project->id);
+                return $includedProjectIds->contains($project->id);
             });
 
-        $tasksByDate = $tasks->groupBy(fn (Task $task): string => $task->due_on->toDateString());
+        $tasksByDate = $tasks->groupBy(fn (Task $task): string => (string) $task->due_on?->toDateString());
 
         $gridStart = $month->copy()->startOfMonth()->startOfWeek(Carbon::MONDAY);
         $gridEnd = $month->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);

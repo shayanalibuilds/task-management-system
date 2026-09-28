@@ -24,7 +24,7 @@ final class TaskFactory extends Factory
         return [
             'project_id' => Project::factory(),
             'column_id' => fn (array $attributes) => ProjectColumn::factory()
-                ->for(Project::find($attributes['project_id']))
+                ->for(Project::query()->whereKey($attributes['project_id'])->firstOrFail())
                 ->create()
                 ->id,
             'title' => fake()->sentence(4),

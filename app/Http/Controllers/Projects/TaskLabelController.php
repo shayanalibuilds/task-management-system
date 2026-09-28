@@ -38,7 +38,8 @@ final class TaskLabelController extends Controller
 
         $label = Label::query()
             ->where('organization_id', $organization->id)
-            ->find($validated['label_id']);
+            ->where('id', $validated['label_id'])
+            ->first();
 
         abort_if($label === null, 404);
 

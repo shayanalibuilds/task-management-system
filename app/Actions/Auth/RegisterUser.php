@@ -8,9 +8,9 @@ use App\Actions\Tenancy\CreateOrganization;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 
-final class RegisterUser
+final readonly class RegisterUser
 {
-    public function __construct(private readonly CreateOrganization $createOrganization) {}
+    public function __construct(private CreateOrganization $createOrganization) {}
 
     /**
      * @param  array{name: string, email: string, password: string}  $input

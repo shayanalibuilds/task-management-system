@@ -10,6 +10,7 @@ use App\Models\Organization;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
@@ -22,8 +23,10 @@ final class StoreTaskRequest extends FormRequest
     {
         $project = $this->route('project');
 
-        return $project instanceof Project
-            && $project->organization->roleFor($this->user())?->isAtLeast(OrganizationRole::Member) === true;
+        $user = $this->user();
+
+        return $project instanceof Project && $user !== null
+            && $project->organization->roleFor($user)?->isAtLeast(OrganizationRole::Member) === true;
     }
 
     /**
@@ -39,9 +42,16 @@ final class StoreTaskRequest extends FormRequest
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:10000'],
             'priority' => ['nullable', new Enum(TaskPriority::class)],
-            'assignee_id' => ['nullable', Rule::exists('users', 'id')->whereIn('id', function ($query) use ($organizationId): void {
-                $query->select('user_id')->from('memberships')->where('organization_id', $organizationId);
-            })],
+            'assignee_id' => ['nullable', 'integer', function (string $attribute, mixed $value, \Closure $fail) use ($organizationId): void {
+                $isMember = DB::table('memberships')
+                    ->where('organization_id', $organizationId)
+                    ->where('user_id', $value)
+                    ->exists();
+
+                if (! $isMember) {
+                    $fail('The chosen assignee is not a member of this workspace.');
+                }
+            }],
             'start_on' => ['nullable', 'date'],
             'due_on' => ['nullable', 'date', 'after_or_equal:start_on'],
         ];

@@ -20,7 +20,7 @@ final class UpdateProject
     {
         $project = $input['project'];
 
-        return DB::transaction(function () use ($project, $input): Project {
+        $project = DB::transaction(function () use ($project, $input): Project {
             $project->update([
                 'name' => $input['name'],
                 'color' => $input['color'],
@@ -36,5 +36,7 @@ final class UpdateProject
         });
 
         DashboardCache::bust($project->organization_id);
+
+        return $project;
     }
 }

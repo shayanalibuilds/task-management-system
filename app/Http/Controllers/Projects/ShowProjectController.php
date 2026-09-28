@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Label;
 use App\Models\Organization;
 use App\Models\Project;
+use App\Models\ProjectColumn;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -29,12 +30,12 @@ final class ShowProjectController extends Controller
         $columns = $project->columns()
             ->with('tasks:id,project_id,column_id,title,priority,assignee_id,due_on,position')
             ->get()
-            ->map(fn ($column): array => [
+            ->map(fn (ProjectColumn $column): array => [
                 'id' => $column->id,
                 'name' => $column->name,
                 'category' => $column->category->value,
                 'position' => (float) $column->position,
-                'tasks' => $column->tasks->sortBy('position')->values()->map(fn ($task): array => [
+                'tasks' => $column->tasks->sortBy('position')->values()->map(fn (Task $task): array => [
                     'id' => $task->id,
                     'title' => $task->title,
                     'priority' => $task->priority->value,
@@ -59,7 +60,7 @@ final class ShowProjectController extends Controller
             ],
             'columns' => $columns,
             'can_manage' => $user->can('manage', $project),
-            'members' => $project->organization->users()->orderBy('name')->get()->map(fn ($member): array => [
+            'members' => $project->organization->users()->orderBy('name')->get()->map(fn (User $member): array => [
                 'id' => $member->id,
                 'name' => $member->name,
             ])->all(),

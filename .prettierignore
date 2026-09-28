@@ -7,3 +7,4 @@ database/database.sqlite
 composer.lock
 package-lock.json
 lang
+resources/js/ziggy.js

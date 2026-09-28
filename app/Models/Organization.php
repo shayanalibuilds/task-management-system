@@ -66,7 +66,15 @@ final class Organization extends Model
     }
 
     /**
-     * @return BelongsToMany<User, $this>
+     * @return HasMany<Label, $this>
+     */
+    public function labels(): HasMany
+    {
+        return $this->hasMany(Label::class);
+    }
+
+    /**
+     * @return BelongsToMany<User, $this, Membership, 'pivot'>
      */
     public function users(): BelongsToMany
     {
@@ -79,7 +87,7 @@ final class Organization extends Model
     /**
      * Members allowed to run the organization.
      *
-     * @return BelongsToMany<User, $this>
+     * @return BelongsToMany<User, $this, Membership, 'pivot'>
      */
     public function owners(): BelongsToMany
     {
