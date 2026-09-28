@@ -37,7 +37,13 @@ use App\Http\Controllers\Projects\TaskLabelController;
 use App\Http\Controllers\Projects\UpdateColumnController;
 use App\Http\Controllers\Projects\UpdateProjectController;
 use App\Http\Controllers\Projects\UpdateTaskController;
+use App\Http\Controllers\Settings\DeleteOrgController;
+use App\Http\Controllers\Settings\LabelSettingsController;
+use App\Http\Controllers\Settings\MembersSettingsController;
 use App\Http\Controllers\Settings\NotificationSettingsController;
+use App\Http\Controllers\Settings\OrgSettingsController;
+use App\Http\Controllers\Settings\RevokeInviteController;
+use App\Http\Controllers\Settings\UpdateOrgSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
@@ -95,6 +101,25 @@ Route::middleware(['auth', 'org.member'])->prefix('{organization:slug}')->group(
     Route::get('inbox', InboxController::class)->name('inbox.index');
     Route::post('inbox/mark-all-read', MarkAllReadController::class)->name('inbox.mark_all');
 
+    Route::get('settings', OrgSettingsController::class)->name('settings.show');
+    Route::patch('settings', UpdateOrgSettingsController::class)->name('settings.update');
+    Route::delete('settings', DeleteOrgController::class)->name('settings.destroy');
+
+    Route::post('settings/labels', [LabelSettingsController::class, 'store'])->name('settings.labels.store');
+    Route::patch('settings/labels/{label}', [LabelSettingsController::class, 'update'])
+        ->name('settings.labels.update');
+    Route::delete('settings/labels/{label}', [LabelSettingsController::class, 'destroy'])
+        ->name('settings.labels.destroy');
+
+    Route::get('settings/members', [MembersSettingsController::class, 'index'])
+        ->name('settings.members');
+    Route::patch('settings/members/{membership}', [MembersSettingsController::class, 'update'])
+        ->name('settings.members.update');
+    Route::delete('settings/members/{membership}', [MembersSettingsController::class, 'destroy'])
+        ->name('settings.members.destroy');
+    Route::delete('settings/invites/{invite}', RevokeInviteController::class)
+        ->name('settings.invites.destroy');
+
     Route::get('settings/notifications', [NotificationSettingsController::class, 'edit'])
         ->name('settings.notifications');
     Route::patch('settings/notifications', [NotificationSettingsController::class, 'update'])
@@ -102,6 +127,25 @@ Route::middleware(['auth', 'org.member'])->prefix('{organization:slug}')->group(
 
     Route::get('inbox', InboxController::class)->name('inbox.index');
     Route::post('inbox/mark-all-read', MarkAllReadController::class)->name('inbox.mark_all');
+
+    Route::get('settings', OrgSettingsController::class)->name('settings.show');
+    Route::patch('settings', UpdateOrgSettingsController::class)->name('settings.update');
+    Route::delete('settings', DeleteOrgController::class)->name('settings.destroy');
+
+    Route::post('settings/labels', [LabelSettingsController::class, 'store'])->name('settings.labels.store');
+    Route::patch('settings/labels/{label}', [LabelSettingsController::class, 'update'])
+        ->name('settings.labels.update');
+    Route::delete('settings/labels/{label}', [LabelSettingsController::class, 'destroy'])
+        ->name('settings.labels.destroy');
+
+    Route::get('settings/members', [MembersSettingsController::class, 'index'])
+        ->name('settings.members');
+    Route::patch('settings/members/{membership}', [MembersSettingsController::class, 'update'])
+        ->name('settings.members.update');
+    Route::delete('settings/members/{membership}', [MembersSettingsController::class, 'destroy'])
+        ->name('settings.members.destroy');
+    Route::delete('settings/invites/{invite}', RevokeInviteController::class)
+        ->name('settings.invites.destroy');
 
     Route::get('settings/notifications', [NotificationSettingsController::class, 'edit'])
         ->name('settings.notifications');
